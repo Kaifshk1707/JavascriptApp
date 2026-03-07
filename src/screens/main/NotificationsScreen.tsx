@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export const NotificationsScreen: React.FC = () => {
   const { colors } = useTheme();
@@ -90,3 +90,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
+

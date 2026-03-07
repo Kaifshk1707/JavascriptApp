@@ -1,8 +1,9 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import  LoginScreen  from '../screens/LoginScreen';
-import  RegisterScreen  from '../screens/RegisterScreen';
-import { useTheme } from '../context/ThemeContext';
+import  LoginScreen  from '../../screens/auth/LoginScreen';
+import  RegisterScreen  from '../../screens/auth/RegisterScreen';
+import ForgotScreen from '../../screens/auth/ForgotScreen';
+import { useTheme } from '../../context/ThemeContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -12,6 +13,9 @@ export const AuthStack: React.FC = () => {
   return (
     <Stack.Navigator
       screenOptions={{
+        animation: 'slide_from_right',
+        animationDuration: 360,
+        gestureEnabled: true,
         headerStyle: {
           backgroundColor: colors.headerBackground,
         },
@@ -29,6 +33,12 @@ export const AuthStack: React.FC = () => {
         component={RegisterScreen}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="Forgot"
+        component={ForgotScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
+

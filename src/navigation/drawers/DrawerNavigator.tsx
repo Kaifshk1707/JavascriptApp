@@ -1,8 +1,8 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { BottomTabs } from './BottomTabs';
-import { CustomDrawerContent } from '../components/CustomDrawerContent';
-import { useTheme } from '../context/ThemeContext';
+import { BottomTabs } from '../tabs/BottomTabs';
+import { CustomDrawerContent } from '../../components/CustomDrawerContent';
+import { useTheme } from '../../context/ThemeContext';
 
 const Drawer = createDrawerNavigator();
 
@@ -33,3 +33,4 @@ export const DrawerNavigator: React.FC = () => {
     </Drawer.Navigator>
   );
 };
+

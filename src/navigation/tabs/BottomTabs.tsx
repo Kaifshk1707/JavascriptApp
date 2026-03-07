@@ -1,10 +1,10 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { HomeTopTabs } from './HomeTopTabs';
-import { ExploreScreen } from '../screens/ExploreScreen';
-import { NotificationsScreen } from '../screens/NotificationsScreen';
-import { ProfileScreen } from '../screens/ProfileScreen';
-import { useTheme } from '../context/ThemeContext';
+import { HomeStack } from '../stacks/HomeStack';
+import { ExploreScreen } from '../../screens/main/ExploreScreen';
+import { NotificationsScreen } from '../../screens/main/NotificationsScreen';
+import { ProfileScreen } from '../../screens/main/ProfileScreen';
+import { useTheme } from '../../context/ThemeContext';
 import { Home, Compass, Bell, User } from 'lucide-react-native';
 
 const Tab = createBottomTabNavigator();
@@ -30,8 +30,9 @@ export const BottomTabs: React.FC = () => {
     >
       <Tab.Screen
         name="Home"
-        component={HomeTopTabs}
+        component={HomeStack}
         options={{
+          headerShown: false,
           tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
@@ -59,3 +60,4 @@ export const BottomTabs: React.FC = () => {
     </Tab.Navigator>
   );
 };
+

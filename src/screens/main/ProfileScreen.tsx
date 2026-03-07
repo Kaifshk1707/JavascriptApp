@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useTheme } from '../context/ThemeContext';
-import { CustomButton } from '../components/CustomButton';
+import { useTheme } from '../../context/ThemeContext';
+import { CustomButton } from '../../components/CustomButton';
 
 export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { colors } = useTheme();
@@ -121,3 +121,4 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 });
+
