@@ -3,12 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
+  Animated,
   TouchableOpacity,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useTheme } from '../../context/ThemeContext';
 
 const tracks = [
   {
@@ -38,7 +37,7 @@ const tracks = [
 ];
 
 const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const { colors } = useTheme();
+  const scrollY = React.useRef(new Animated.Value(0)).current;
 
   const openLanguage = (id: string) => {
     if (id === 'html') {
@@ -52,84 +51,110 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     navigation.navigate('JavaScriptMain');
   };
 
+  const heroTranslateY = scrollY.interpolate({
+    inputRange: [0, 140],
+    outputRange: [0, -28],
+    extrapolate: 'clamp',
+  });
+  const heroOpacity = scrollY.interpolate({
+    inputRange: [0, 120],
+    outputRange: [1, 0.55],
+    extrapolate: 'clamp',
+  });
+  const sectionTranslateY = scrollY.interpolate({
+    inputRange: [0, 180],
+    outputRange: [0, -12],
+    extrapolate: 'clamp',
+  });
+
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      <LinearGradient
-        colors={['#0EA5E9', '#2563EB']}
-        style={styles.heroCard}
+    <LinearGradient colors={['#0F1022', '#243B55', '#D35D6E']} style={styles.container}>
+      <Animated.ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true },
+        )}
       >
-        <Text style={styles.heroTitle}>Build Web Skills Offline</Text>
-        <Text style={styles.heroSubtitle}>
-          Learn HTML, CSS, and JavaScript anywhere. No internet required after download.
-        </Text>
-        <TouchableOpacity
-          style={styles.heroButton}
-          activeOpacity={0.9}
-          onPress={() => navigation.navigate('HTMLMain')}
+        <Animated.View
+          style={{
+            transform: [{ translateY: heroTranslateY }],
+            opacity: heroOpacity,
+          }}
         >
-          <Text style={styles.heroButtonText}>Continue Learning</Text>
-        </TouchableOpacity>
-      </LinearGradient>
+          <LinearGradient
+            colors={['rgba(255,255,255,0.16)', 'rgba(255,255,255,0.06)']}
+            style={styles.heroCard}
+          >
+            <Text style={styles.heroTitle}>Build Web Skills Offline</Text>
+            <Text style={styles.heroSubtitle}>
+              Learn HTML, CSS, and JavaScript anywhere. No internet required after download.
+            </Text>
+            <TouchableOpacity
+              style={styles.heroButton}
+              activeOpacity={0.9}
+              onPress={() => navigation.navigate('HTMLMain')}
+            >
+              <Text style={styles.heroButtonText}>Continue Learning</Text>
+            </TouchableOpacity>
+          </LinearGradient>
+        </Animated.View>
 
-      <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: colors.textPrimary || '#111827' }]}>
+        <Animated.Text
+          style={[
+            styles.sectionTitle,
+            {
+              transform: [{ translateY: sectionTranslateY }],
+            },
+          ]}
+        >
           Your Learning Tracks
-        </Text>
-      </View>
+        </Animated.Text>
 
-      {tracks.map((item) => (
-        <TouchableOpacity
-          key={item.id}
-          style={[styles.trackCard, { backgroundColor: colors.card }]}
-          activeOpacity={0.9}
-          onPress={() => openLanguage(item.id)}
-        >
-          <View style={[styles.trackIconWrap, { backgroundColor: `${item.color}22` }]}>
-            <Icon name={item.icon} size={22} color={item.color} />
-          </View>
-          <View style={styles.trackInfo}>
-            <Text style={[styles.trackTitle, { color: colors.textPrimary || '#111827' }]}>
-              {item.title}
-            </Text>
-            <Text style={[styles.trackSubtitle, { color: colors.textSecondary || '#4B5563' }]}>
-              {item.subtitle}
-            </Text>
-            <Text style={[styles.trackProgress, { color: colors.primary }]}>
-              {item.progress}
-            </Text>
-          </View>
-          <Icon name="chevron-forward" size={18} color={colors.textSecondary || '#6B7280'} />
-        </TouchableOpacity>
-      ))}
+        {tracks.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.trackCard}
+            activeOpacity={0.9}
+            onPress={() => openLanguage(item.id)}
+          >
+            <LinearGradient colors={['rgba(12,20,42,0.7)', 'rgba(12,20,42,0.45)']} style={styles.trackCardInner}>
+              <View style={[styles.trackIconWrap, { backgroundColor: `${item.color}22` }]}>
+                <Icon name={item.icon} size={22} color={item.color} />
+              </View>
+              <View style={styles.trackInfo}>
+                <Text style={styles.trackTitle}>{item.title}</Text>
+                <Text style={styles.trackSubtitle}>{item.subtitle}</Text>
+                <Text style={styles.trackProgress}>{item.progress}</Text>
+              </View>
+              <Icon name="chevron-forward" size={18} color="#C9DAEE" />
+            </LinearGradient>
+          </TouchableOpacity>
+        ))}
 
-      <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
-        <View style={styles.infoHeader}>
-          <Icon name="cloud-offline-outline" size={18} color={colors.primary} />
-          <Text style={[styles.infoTitle, { color: colors.textPrimary || '#111827' }]}>
-            Offline Mode Enabled
+        <View style={styles.infoCard}>
+          <View style={styles.infoHeader}>
+            <Icon name="cloud-offline-outline" size={18} color="#8ECBFF" />
+            <Text style={styles.infoTitle}>Offline Mode Enabled</Text>
+          </View>
+          <Text style={styles.infoText}>
+            Download lesson packs once and keep learning without internet.
           </Text>
         </View>
-        <Text style={[styles.infoText, { color: colors.textSecondary || '#4B5563' }]}>
-          Download lesson packs once and keep learning without internet.
-        </Text>
-      </View>
 
-      <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
-        <View style={styles.infoHeader}>
-          <Icon name="rocket-outline" size={18} color={colors.primary} />
-          <Text style={[styles.infoTitle, { color: colors.textPrimary || '#111827' }]}>
-            Coming Next
+        <View style={styles.infoCard}>
+          <View style={styles.infoHeader}>
+            <Icon name="rocket-outline" size={18} color="#8ECBFF" />
+            <Text style={styles.infoTitle}>Coming Next</Text>
+          </View>
+          <Text style={styles.infoText}>
+            Python, React, and more languages can be added in future updates.
           </Text>
         </View>
-        <Text style={[styles.infoText, { color: colors.textSecondary || '#4B5563' }]}>
-          Python, React, and more languages can be added in future updates.
-        </Text>
-      </View>
-    </ScrollView>
+      </Animated.ScrollView>
+    </LinearGradient>
   );
 };
 
@@ -141,12 +166,14 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingBottom: 24,
+    paddingBottom: 90,
   },
   heroCard: {
     borderRadius: 18,
     padding: 18,
     marginBottom: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
   },
   heroTitle: {
     color: '#FFFFFF',
@@ -162,29 +189,36 @@ const styles = StyleSheet.create({
   },
   heroButton: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.16)',
     paddingHorizontal: 14,
     paddingVertical: 9,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.22)',
   },
   heroButtonText: {
     color: '#FFFFFF',
     fontWeight: '700',
     fontSize: 13,
   },
-  sectionHeader: {
-    marginBottom: 10,
-  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
+    color: '#EEF5FF',
+    marginBottom: 10,
   },
   trackCard: {
     borderRadius: 14,
-    padding: 14,
+    overflow: 'hidden',
     marginBottom: 10,
+  },
+  trackCardInner: {
+    borderRadius: 14,
+    padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
   },
   trackIconWrap: {
     width: 42,
@@ -200,20 +234,26 @@ const styles = StyleSheet.create({
   trackTitle: {
     fontSize: 16,
     fontWeight: '700',
+    color: '#F2F8FF',
   },
   trackSubtitle: {
     fontSize: 12,
     marginTop: 2,
+    color: '#CBDAEE',
   },
   trackProgress: {
     fontSize: 12,
     marginTop: 4,
     fontWeight: '600',
+    color: '#8ECBFF',
   },
   infoCard: {
     borderRadius: 14,
     padding: 14,
     marginTop: 10,
+    backgroundColor: 'rgba(12,20,42,0.58)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)',
   },
   infoHeader: {
     flexDirection: 'row',
@@ -224,9 +264,11 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontSize: 14,
     fontWeight: '700',
+    color: '#EEF5FF',
   },
   infoText: {
     fontSize: 13,
     lineHeight: 19,
+    color: '#D0DDEE',
   },
 });

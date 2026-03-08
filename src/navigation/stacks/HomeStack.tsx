@@ -5,21 +5,21 @@ import HtmlMainScreen from '../../screens/learning/HtmlMainScreen';
 import CssMainScreen from '../../screens/learning/CssMainScreen';
 import JavaScriptMainScreen from '../../screens/learning/JavaScriptMainScreen';
 import LearningTopicDetailScreen from '../../screens/learning/LearningTopicDetailScreen';
-import { useTheme } from '../../context/ThemeContext';
 
 const Stack = createNativeStackNavigator();
 
 export const HomeStack: React.FC = () => {
-  const { colors } = useTheme();
-
   return (
     <Stack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: colors.headerBackground,
+          backgroundColor: '#0F1022',
         },
-        headerTintColor: colors.text,
+        headerTintColor: '#EAF3FF',
         headerShadowVisible: false,
+        headerTitleStyle: {
+          fontWeight: '700',
+        },
       }}
     >
       <Stack.Screen name="HomeMain" component={HomeScreen} options={{ title: 'Home' }} />
@@ -38,4 +38,3 @@ export const HomeStack: React.FC = () => {
     </Stack.Navigator>
   );
 };
-
