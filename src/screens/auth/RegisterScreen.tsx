@@ -17,6 +17,15 @@ import { CommonActions } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+const bgTechIcons = [
+  { name: 'code-slash-outline', top: 70, left: 28, size: 30, opacity: 0.18, rotate: '-12deg' },
+  { name: 'terminal-outline', top: 132, left: 250, size: 32, opacity: 0.15, rotate: '10deg' },
+  { name: 'logo-react', top: 220, left: 42, size: 36, opacity: 0.14, rotate: '0deg' },
+  { name: 'hardware-chip-outline', top: 315, left: 270, size: 29, opacity: 0.13, rotate: '-8deg' },
+  { name: 'bug-outline', top: 450, left: 22, size: 28, opacity: 0.12, rotate: '8deg' },
+  { name: 'git-branch-outline', top: 550, left: 255, size: 33, opacity: 0.16, rotate: '-15deg' },
+];
+
 const RegisterScreen = ({ navigation }: any) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
@@ -35,11 +44,13 @@ const RegisterScreen = ({ navigation }: any) => {
   const contactTyping = useRef(new Animated.Value(0)).current;
   const passwordTyping = useRef(new Animated.Value(0)).current;
   const confirmTyping = useRef(new Animated.Value(0)).current;
+  const heroFloat = useRef(new Animated.Value(0)).current;
+  const cardFloat = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const entrance = Animated.timing(entranceAnim, {
       toValue: 1,
-      duration: 440,
+      duration: 430,
       easing: Easing.bezier(0.22, 1, 0.36, 1),
       isInteraction: false,
       useNativeDriver: true,
@@ -50,14 +61,14 @@ const RegisterScreen = ({ navigation }: any) => {
       Animated.sequence([
         Animated.timing(buttonPulse, {
           toValue: 1,
-          duration: 920,
+          duration: 900,
           easing: Easing.inOut(Easing.sin),
           isInteraction: false,
           useNativeDriver: true,
         }),
         Animated.timing(buttonPulse, {
           toValue: 0,
-          duration: 920,
+          duration: 900,
           easing: Easing.inOut(Easing.sin),
           isInteraction: false,
           useNativeDriver: true,
@@ -118,18 +129,62 @@ const RegisterScreen = ({ navigation }: any) => {
       ]),
     );
 
+    const heroLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(heroFloat, {
+          toValue: 1,
+          duration: 1900,
+          easing: Easing.inOut(Easing.sin),
+          isInteraction: false,
+          useNativeDriver: true,
+        }),
+        Animated.timing(heroFloat, {
+          toValue: 0,
+          duration: 1900,
+          easing: Easing.inOut(Easing.sin),
+          isInteraction: false,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    const cardLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(cardFloat, {
+          toValue: 1,
+          duration: 2200,
+          easing: Easing.inOut(Easing.sin),
+          isInteraction: false,
+          useNativeDriver: true,
+        }),
+        Animated.timing(cardFloat, {
+          toValue: 0,
+          duration: 2200,
+          easing: Easing.inOut(Easing.sin),
+          isInteraction: false,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
     pulseLoop.start();
     socialWave.start();
+    heroLoop.start();
+    cardLoop.start();
 
     return () => {
       pulseLoop.stop();
       socialWave.stop();
+      heroLoop.stop();
+      cardLoop.stop();
       entranceAnim.stopAnimation();
       buttonPulse.stopAnimation();
       buttonPress.stopAnimation();
       contactTyping.stopAnimation();
       passwordTyping.stopAnimation();
       confirmTyping.stopAnimation();
+      heroFloat.stopAnimation();
+      cardFloat.stopAnimation();
       socialA.stopAnimation();
       socialB.stopAnimation();
       socialC.stopAnimation();
@@ -141,6 +196,8 @@ const RegisterScreen = ({ navigation }: any) => {
     contactTyping,
     passwordTyping,
     confirmTyping,
+    heroFloat,
+    cardFloat,
     socialA,
     socialB,
     socialC,
@@ -241,6 +298,21 @@ const RegisterScreen = ({ navigation }: any) => {
     outputRange: [0.16, 0.38],
   });
 
+  const contactScale = contactTyping.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.018],
+  });
+
+  const passwordScale = passwordTyping.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.018],
+  });
+
+  const confirmScale = confirmTyping.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.018],
+  });
+
   const socialStyle = (value: Animated.Value) => ({
     transform: [
       {
@@ -258,12 +330,49 @@ const RegisterScreen = ({ navigation }: any) => {
     ],
   });
 
+  const heroBadgeScale = heroFloat.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.05],
+  });
+
+  const heroBadgeRotate = heroFloat.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['-3deg', '3deg'],
+  });
+
+  const cardFloatY = cardFloat.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -5],
+  });
+
+  const cardFloatScale = cardFloat.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.008],
+  });
+
   return (
-    <LinearGradient colors={['#111827', '#1F2937', '#3B82F6']} style={styles.container}>
+    <LinearGradient colors={['#0F1022', '#243B55', '#D35D6E']} style={styles.container}>
       <StatusBar barStyle="light-content" />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.blurShapeOne} />
         <View style={styles.blurShapeTwo} />
+        <View pointerEvents="none" style={styles.bgIconLayer}>
+          {bgTechIcons.map((item, index) => (
+            <Icon
+              key={`register-tech-icon-${index}`}
+              name={item.name}
+              size={item.size}
+              color="#E6F2FF"
+              style={{
+                position: 'absolute',
+                top: item.top,
+                left: item.left,
+                opacity: item.opacity,
+                transform: [{ rotate: item.rotate }],
+              }}
+            />
+          ))}
+        </View>
 
         <KeyboardAvoidingView
           style={styles.keyboardView}
@@ -279,21 +388,21 @@ const RegisterScreen = ({ navigation }: any) => {
                 },
               ]}
             >
-              <Animated.Image
-                source={{ uri: 'https://cdn-icons-png.flaticon.com/512/3135/3135768.png' }}
-                style={styles.image}
-                resizeMode="contain"
-              />
-              <Text style={styles.heroTitle}>Create Account</Text>
-              <Text style={styles.heroSubTitle}>Join us and start building today</Text>
+              <Animated.View style={[styles.heroBadge, { transform: [{ scale: heroBadgeScale }, { rotate: heroBadgeRotate }] }]}>
+                <LinearGradient colors={['#66D8FF', '#6B78FF']} style={styles.heroBadgeInner}>
+                  <Icon name="person-add-outline" size={42} color="#0B1B3D" />
+                </LinearGradient>
+              </Animated.View>
+              <Text style={styles.heroTitle}>Join DevTrack</Text>
+              <Text style={styles.heroSubTitle}>Build your coding streak.</Text>
             </Animated.View>
 
             <Animated.View
               style={[
-                styles.card,
+                styles.formStack,
                 {
                   opacity: cardOpacity,
-                  transform: [{ translateY: cardTranslateY }, { scale: cardScale }],
+                  transform: [{ translateY: Animated.add(cardTranslateY, cardFloatY) }, { scale: cardScale }, { scale: cardFloatScale }],
                 },
               ]}
             >
@@ -301,26 +410,30 @@ const RegisterScreen = ({ navigation }: any) => {
                 style={[
                   styles.inputContainer,
                   focusedField === 'contact' && styles.inputContainerFocused,
-                  {
+                  { transform: [{ scale: contactScale }] },
+                ]}
+              >
+                <Animated.View
+                  style={{
                     transform: [
                       {
                         scale: contactTyping.interpolate({
                           inputRange: [0, 1],
-                          outputRange: [1, 1.018],
+                          outputRange: [1, 1.15],
                         }),
                       },
                     ],
-                  },
-                ]}
-              >
-                <Icon
-                  name={contactMode === 'phone' ? 'call-outline' : 'mail-outline'}
-                  size={20}
-                  color="#D6E5FF"
-                />
+                  }}
+                >
+                  <Icon
+                    name={contactMode === 'phone' ? 'call-outline' : 'mail-outline'}
+                    size={20}
+                    color="#C6D5E6"
+                  />
+                </Animated.View>
                 <TextInput
                   placeholder={contactMode === 'phone' ? 'Phone Number' : 'Email Address'}
-                  placeholderTextColor="#A9BEE0"
+                  placeholderTextColor="#9FB0C4"
                   style={styles.input}
                   keyboardType={contactMode === 'phone' ? 'phone-pad' : 'email-address'}
                   autoCapitalize="none"
@@ -333,7 +446,7 @@ const RegisterScreen = ({ navigation }: any) => {
                   <Icon
                     name={contactMode === 'phone' ? 'mail-outline' : 'call-outline'}
                     size={18}
-                    color="#D6E5FF"
+                    color="#C6D5E6"
                   />
                 </TouchableOpacity>
               </Animated.View>
@@ -342,22 +455,26 @@ const RegisterScreen = ({ navigation }: any) => {
                 style={[
                   styles.inputContainer,
                   focusedField === 'password' && styles.inputContainerFocused,
-                  {
+                  { transform: [{ scale: passwordScale }] },
+                ]}
+              >
+                <Animated.View
+                  style={{
                     transform: [
                       {
                         scale: passwordTyping.interpolate({
                           inputRange: [0, 1],
-                          outputRange: [1, 1.018],
+                          outputRange: [1, 1.15],
                         }),
                       },
                     ],
-                  },
-                ]}
-              >
-                <Icon name="lock-closed-outline" size={20} color="#D6E5FF" />
+                  }}
+                >
+                  <Icon name="lock-closed-outline" size={20} color="#C6D5E6" />
+                </Animated.View>
                 <TextInput
                   placeholder="Password"
-                  placeholderTextColor="#A9BEE0"
+                  placeholderTextColor="#9FB0C4"
                   secureTextEntry={!passwordVisible}
                   style={styles.input}
                   value={password}
@@ -369,7 +486,7 @@ const RegisterScreen = ({ navigation }: any) => {
                   <Icon
                     name={passwordVisible ? 'eye-outline' : 'eye-off-outline'}
                     size={20}
-                    color="#D6E5FF"
+                    color="#C6D5E6"
                   />
                 </TouchableOpacity>
               </Animated.View>
@@ -378,22 +495,26 @@ const RegisterScreen = ({ navigation }: any) => {
                 style={[
                   styles.inputContainer,
                   focusedField === 'confirm' && styles.inputContainerFocused,
-                  {
+                  { transform: [{ scale: confirmScale }] },
+                ]}
+              >
+                <Animated.View
+                  style={{
                     transform: [
                       {
                         scale: confirmTyping.interpolate({
                           inputRange: [0, 1],
-                          outputRange: [1, 1.018],
+                          outputRange: [1, 1.15],
                         }),
                       },
                     ],
-                  },
-                ]}
-              >
-                <Icon name="shield-checkmark-outline" size={20} color="#D6E5FF" />
+                  }}
+                >
+                  <Icon name="shield-checkmark-outline" size={20} color="#C6D5E6" />
+                </Animated.View>
                 <TextInput
                   placeholder="Confirm Password"
-                  placeholderTextColor="#A9BEE0"
+                  placeholderTextColor="#9FB0C4"
                   secureTextEntry={!confirmVisible}
                   style={styles.input}
                   value={confirmPassword}
@@ -405,7 +526,7 @@ const RegisterScreen = ({ navigation }: any) => {
                   <Icon
                     name={confirmVisible ? 'eye-outline' : 'eye-off-outline'}
                     size={20}
-                    color="#D6E5FF"
+                    color="#C6D5E6"
                   />
                 </TouchableOpacity>
               </Animated.View>
@@ -436,29 +557,33 @@ const RegisterScreen = ({ navigation }: any) => {
                     }
                     onPress={handleCreateAccount}
                   >
-                    <LinearGradient colors={['#22D3EE', '#3B82F6']} style={styles.button}>
+                    <LinearGradient colors={['#53A0FD', '#6C63FF']} style={styles.button}>
                       <Text style={styles.buttonText}>Create Account</Text>
                     </LinearGradient>
                   </TouchableOpacity>
                 </Animated.View>
               </View>
 
-              <Text style={styles.orText}>Or sign up with</Text>
+              <View style={styles.socialSection}>
+                <View style={styles.socialDivider} />
+                <Text style={styles.orText}>Or sign up with</Text>
+                <View style={styles.socialDivider} />
+              </View>
 
               <View style={styles.socialContainer}>
                 <Animated.View style={[styles.socialAnimWrap, socialStyle(socialA)]}>
                   <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
-                    <Icon name="logo-google" size={20} color="#F3F8FF" />
+                    <Icon name="logo-google" size={20} color="#EAF3FF" />
                   </TouchableOpacity>
                 </Animated.View>
                 <Animated.View style={[styles.socialAnimWrap, socialStyle(socialB)]}>
                   <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
-                    <Icon name="logo-facebook" size={20} color="#F3F8FF" />
+                    <Icon name="logo-facebook" size={20} color="#EAF3FF" />
                   </TouchableOpacity>
                 </Animated.View>
                 <Animated.View style={[styles.socialAnimWrap, socialStyle(socialC)]}>
                   <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
-                    <Icon name="logo-twitter" size={20} color="#F3F8FF" />
+                    <Icon name="logo-twitter" size={20} color="#EAF3FF" />
                   </TouchableOpacity>
                 </Animated.View>
               </View>
@@ -499,44 +624,60 @@ const styles = StyleSheet.create({
     width: 220,
     height: 220,
     borderRadius: 110,
-    backgroundColor: 'rgba(56, 189, 248, 0.2)',
-    top: 14,
-    left: -90,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    top: 20,
+    right: -80,
   },
   blurShapeTwo: {
     position: 'absolute',
-    width: 170,
-    height: 170,
-    borderRadius: 85,
-    backgroundColor: 'rgba(255,255,255,0.11)',
-    bottom: 90,
-    right: -65,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: 'rgba(128,190,255,0.18)',
+    bottom: 60,
+    left: -70,
+  },
+  bgIconLayer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
   },
   imageContainer: {
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 18,
   },
-  image: {
-    width: 94,
-    height: 94,
-    marginBottom: 10,
+  heroBadge: {
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    marginBottom: 12,
+    shadowColor: '#6BA7FF',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  heroBadgeInner: {
+    flex: 1,
+    borderRadius: 46,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   heroTitle: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: '800',
-    color: '#F6FBFF',
+    color: '#F5F9FF',
+    letterSpacing: 0.4,
   },
   heroSubTitle: {
     marginTop: 6,
     fontSize: 14,
-    color: '#CFE1FF',
+    color: '#D8E6F8',
   },
-  card: {
-    backgroundColor: 'rgba(12, 28, 53, 0.6)',
-    borderRadius: 24,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
+  formStack: {
+    paddingHorizontal: 2,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -549,8 +690,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.14)',
   },
   inputContainerFocused: {
-    borderColor: '#89D4FF',
-    backgroundColor: 'rgba(156, 195, 255, 0.24)',
+    borderColor: '#8ECBFF',
+    backgroundColor: 'rgba(148, 172, 215, 0.24)',
   },
   input: {
     flex: 1,
@@ -569,8 +710,7 @@ const styles = StyleSheet.create({
   },
   buttonArea: {
     position: 'relative',
-    marginTop: 6,
-    marginBottom: 16,
+    marginBottom: 18,
   },
   buttonPulseLayer: {
     position: 'absolute',
@@ -579,7 +719,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     borderRadius: 14,
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#6C63FF',
   },
   buttonAnimatedWrap: {
     zIndex: 1,
@@ -596,13 +736,23 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
-    letterSpacing: 0.2,
+    letterSpacing: 0.3,
   },
   orText: {
     textAlign: 'center',
-    color: '#D4E4FF',
-    marginBottom: 14,
+    color: '#C8D7EA',
+    marginHorizontal: 10,
     fontSize: 13,
+  },
+  socialSection: {
+    marginBottom: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  socialDivider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(211, 227, 249, 0.28)',
   },
   socialContainer: {
     flexDirection: 'row',
@@ -620,11 +770,11 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.2)',
   },
   loginLink: {
-    marginTop: 18,
+    marginTop: 20,
     alignItems: 'center',
   },
   loginText: {
-    color: '#D8E7FF',
+    color: '#D2DDEC',
     fontSize: 14,
   },
   loginBold: {

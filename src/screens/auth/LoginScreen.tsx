@@ -16,6 +16,15 @@ import { CommonActions } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+const bgTechIcons = [
+  { name: 'code-slash-outline', top: 70, left: 28, size: 30, opacity: 0.18, rotate: '-12deg' },
+  { name: 'terminal-outline', top: 132, left: 250, size: 32, opacity: 0.15, rotate: '10deg' },
+  { name: 'logo-react', top: 220, left: 42, size: 36, opacity: 0.14, rotate: '0deg' },
+  { name: 'hardware-chip-outline', top: 315, left: 270, size: 29, opacity: 0.13, rotate: '-8deg' },
+  { name: 'bug-outline', top: 450, left: 22, size: 28, opacity: 0.12, rotate: '8deg' },
+  { name: 'git-branch-outline', top: 550, left: 255, size: 33, opacity: 0.16, rotate: '-15deg' },
+];
+
 const LoginScreen = ({ navigation }: any) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -31,6 +40,8 @@ const LoginScreen = ({ navigation }: any) => {
   const socialC = useRef(new Animated.Value(0)).current;
   const contactTyping = useRef(new Animated.Value(0)).current;
   const passwordTyping = useRef(new Animated.Value(0)).current;
+  const heroFloat = useRef(new Animated.Value(0)).current;
+  const cardFloat = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const entrance = Animated.timing(entranceAnim, {
@@ -116,15 +127,57 @@ const LoginScreen = ({ navigation }: any) => {
 
     pulseLoop.start();
     socialWave.start();
+    const heroLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(heroFloat, {
+          toValue: 1,
+          duration: 1900,
+          easing: Easing.inOut(Easing.sin),
+          isInteraction: false,
+          useNativeDriver: true,
+        }),
+        Animated.timing(heroFloat, {
+          toValue: 0,
+          duration: 1900,
+          easing: Easing.inOut(Easing.sin),
+          isInteraction: false,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    const cardLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(cardFloat, {
+          toValue: 1,
+          duration: 2200,
+          easing: Easing.inOut(Easing.sin),
+          isInteraction: false,
+          useNativeDriver: true,
+        }),
+        Animated.timing(cardFloat, {
+          toValue: 0,
+          duration: 2200,
+          easing: Easing.inOut(Easing.sin),
+          isInteraction: false,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    heroLoop.start();
+    cardLoop.start();
 
     return () => {
       pulseLoop.stop();
       socialWave.stop();
+      heroLoop.stop();
+      cardLoop.stop();
       entranceAnim.stopAnimation();
       buttonPulse.stopAnimation();
       buttonPress.stopAnimation();
       contactTyping.stopAnimation();
       passwordTyping.stopAnimation();
+      heroFloat.stopAnimation();
+      cardFloat.stopAnimation();
       socialA.stopAnimation();
       socialB.stopAnimation();
       socialC.stopAnimation();
@@ -135,6 +188,8 @@ const LoginScreen = ({ navigation }: any) => {
     buttonPress,
     contactTyping,
     passwordTyping,
+    heroFloat,
+    cardFloat,
     socialA,
     socialB,
     socialC,
@@ -256,6 +311,22 @@ const LoginScreen = ({ navigation }: any) => {
       },
     ],
   });
+  const heroBadgeScale = heroFloat.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.05],
+  });
+  const heroBadgeRotate = heroFloat.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['-3deg', '3deg'],
+  });
+  const cardFloatY = cardFloat.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -5],
+  });
+  const cardFloatScale = cardFloat.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.008],
+  });
 
   return (
     <LinearGradient colors={['#0F1022', '#243B55', '#D35D6E']} style={styles.container}>
@@ -263,6 +334,23 @@ const LoginScreen = ({ navigation }: any) => {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.blurShapeOne} />
         <View style={styles.blurShapeTwo} />
+        <View pointerEvents="none" style={styles.bgIconLayer}>
+          {bgTechIcons.map((item, index) => (
+            <Icon
+              key={`login-tech-icon-${index}`}
+              name={item.name}
+              size={item.size}
+              color="#E6F2FF"
+              style={{
+                position: 'absolute',
+                top: item.top,
+                left: item.left,
+                opacity: item.opacity,
+                transform: [{ rotate: item.rotate }],
+              }}
+            />
+          ))}
+        </View>
 
         <KeyboardAvoidingView
           style={styles.keyboardView}
@@ -277,21 +365,21 @@ const LoginScreen = ({ navigation }: any) => {
               },
             ]}
           >
-            <Animated.Image
-              source={{ uri: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }}
-              style={styles.image}
-              resizeMode="contain"
-            />
-            <Text style={styles.heroTitle}>Welcome Back</Text>
-            <Text style={styles.heroSubTitle}>Sign in to continue your journey</Text>
+            <Animated.View style={[styles.heroBadge, { transform: [{ scale: heroBadgeScale }, { rotate: heroBadgeRotate }] }]}>
+              <LinearGradient colors={['#66D8FF', '#6B78FF']} style={styles.heroBadgeInner}>
+                <Icon name="code-slash-outline" size={42} color="#0B1B3D" />
+              </LinearGradient>
+            </Animated.View>
+            <Text style={styles.heroTitle}>DevTrack</Text>
+            <Text style={styles.heroSubTitle}>Learn. Build. Repeat.</Text>
           </Animated.View>
 
           <Animated.View
             style={[
-              styles.card,
+              styles.formStack,
               {
                 opacity: cardOpacity,
-                transform: [{ translateY: cardTranslateY }, { scale: cardScale }],
+                transform: [{ translateY: Animated.add(cardTranslateY, cardFloatY) }, { scale: cardScale }, { scale: cardFloatScale }],
               },
             ]}
           >
@@ -417,7 +505,11 @@ const LoginScreen = ({ navigation }: any) => {
               </Animated.View>
             </View>
 
-            <Text style={styles.orText}>Or continue with</Text>
+            <View style={styles.socialSection}>
+              <View style={styles.socialDivider} />
+              <Text style={styles.orText}>Or continue with</Text>
+              <View style={styles.socialDivider} />
+            </View>
 
             <View style={styles.socialContainer}>
               <Animated.View style={[styles.socialAnimWrap, socialStyle(socialA)]}>
@@ -481,31 +573,47 @@ const styles = StyleSheet.create({
     bottom: 60,
     left: -70,
   },
+  bgIconLayer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
   imageContainer: {
     alignItems: 'center',
     marginBottom: 18,
   },
-  image: {
-    width: 100,
-    height: 100,
-    marginBottom: 10,
+  heroBadge: {
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    marginBottom: 12,
+    shadowColor: '#6BA7FF',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 14,
+    elevation: 8,
+  },
+  heroBadgeInner: {
+    flex: 1,
+    borderRadius: 46,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   heroTitle: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: '800',
     color: '#F5F9FF',
+    letterSpacing: 0.4,
   },
   heroSubTitle: {
     marginTop: 6,
     fontSize: 14,
-    color: '#D0DDEE',
+    color: '#D8E6F8',
   },
-  card: {
-    backgroundColor: 'rgba(12, 20, 42, 0.56)',
-    borderRadius: 24,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
+  formStack: {
+    paddingHorizontal: 2,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -575,8 +683,18 @@ const styles = StyleSheet.create({
   orText: {
     textAlign: 'center',
     color: '#C8D7EA',
-    marginBottom: 14,
+    marginHorizontal: 10,
     fontSize: 13,
+  },
+  socialSection: {
+    marginBottom: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  socialDivider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(211, 227, 249, 0.28)',
   },
   socialContainer: {
     flexDirection: 'row',
