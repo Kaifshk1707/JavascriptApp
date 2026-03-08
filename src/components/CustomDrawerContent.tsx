@@ -13,7 +13,7 @@ export const CustomDrawerContent: React.FC<any> = (props) => {
       style={{ backgroundColor: colors.drawerBackground }}
     >
       <View style={[styles.header, { backgroundColor: colors.card }]}>
-        <Text style={[styles.appName, { color: colors.text }]}>MyApp</Text>
+        <Text style={[styles.appName, { color: colors.text }]}>CodePath</Text>
         <Text style={[styles.appVersion, { color: colors.textSecondary }]}>
           Version 1.0.0
         </Text>
@@ -74,3 +74,4 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
 });
+

@@ -3,9 +3,9 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ThemeProvider } from './src/context/ThemeContext';
-import { SplashScreen } from './src/screens/SplashScreen';
-import { AuthStack } from './src/navigation/AuthStack';
-import { DrawerNavigator } from './src/navigation/DrawerNavigator';
+import { SplashScreen } from './src/screens/common/SplashScreen';
+import { AuthStack } from './src/navigation/stacks/AuthStack';
+import { DrawerNavigator } from './src/navigation/drawers/DrawerNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -26,3 +26,4 @@ export default function App() {
     </ThemeProvider>
   );
 }
+
