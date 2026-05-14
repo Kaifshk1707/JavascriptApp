@@ -264,8 +264,11 @@ export const lightColors = {
   surface: globalColors.ghostwhite,
   card: globalColors.white,
   modal: globalColors.lavenderblush,
+  drawerBackground: globalColors.white,
+  headerBackground: globalColors.white,
 
   /* Text */
+  text: globalColors.darkslateblue,
   textPrimary: globalColors.darkslateblue,
   textSecondary: globalColors.dimgray,
   textTertiary: globalColors.gray,
@@ -273,6 +276,7 @@ export const lightColors = {
   textDisabled: globalColors.lightgray,
 
   /* Borders */
+  border: globalColors.lightgrey,
   borderLight: globalColors.gainsboro,
   borderMedium: globalColors.lightgrey,
   borderDark: globalColors.slategray,
@@ -337,8 +341,11 @@ export const darkColors = {
   surface: globalColors.slategray,
   card: globalColors.darkgray,
   modal: globalColors.indigo,
+  drawerBackground: globalColors.darkslateblue,
+  headerBackground: globalColors.midnightblue,
 
   /* Text */
+  text: globalColors.white,
   textPrimary: globalColors.white,
   textSecondary: globalColors.lightgray,
   textTertiary: globalColors.silver,
@@ -346,6 +353,7 @@ export const darkColors = {
   textDisabled: globalColors.gray,
 
   /* Borders */
+  border: globalColors.slategray,
   borderLight: globalColors.slategray,
   borderMedium: globalColors.darkgray,
   borderDark: globalColors.black,
@@ -389,3 +397,5 @@ export const darkColors = {
   greyDark: globalColors.darkslategrey,
   greyUltraDark: globalColors.black,
 };
+
+export type ThemeColors = typeof lightColors;
