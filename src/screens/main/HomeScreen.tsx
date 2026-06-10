@@ -60,7 +60,10 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     (sum, item) => sum + item.stats.completedTopics,
     0,
   );
-  const totalTopics = featuredTracks.reduce((sum, item) => sum + item.stats.totalTopics, 0);
+  const totalTopics = featuredTracks.reduce(
+    (sum, item) => sum + item.stats.totalTopics,
+    0,
+  );
 
   const openLanguage = (languageKey: LanguageKey) => {
     navigation.navigate('LanguageMain', { languageKey });
@@ -78,7 +81,10 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   });
 
   return (
-    <LinearGradient colors={['#0F1022', '#243B55', '#D35D6E']} style={styles.container}>
+    <LinearGradient
+      colors={['#0F1022', '#243B55', '#D35D6E']}
+      style={styles.container}
+    >
       <Animated.ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -104,31 +110,40 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             <View style={styles.heroTopRow}>
               <View>
                 <Text style={styles.heroEyebrow}>Offline Learning Hub</Text>
-                <Text style={styles.heroTitle}>HTML, CSS, JavaScript and More</Text>
+                <Text style={styles.heroTitle}>
+                  HTML, CSS, JavaScript and More
+                </Text>
               </View>
-              <View style={styles.heroBadge}>
-                <Text style={styles.heroBadgeText}>{formatScore(totalStartedScore)}/100</Text>
-              </View>
+              {/* <View style={styles.heroBadge}>
+                <Text style={styles.heroBadgeText}>
+                  {formatScore(totalStartedScore)}/100
+                </Text>
+              </View> */}
             </View>
 
             <Text style={styles.heroSubtitle}>
-              Theory, practical labs, quiz, references, aur topic-wise live progress ek hi
-              dashboard me ready hai.
+              Theory, practical labs, quiz, references, aur topic-wise live
+              progress ek hi dashboard me ready hai.
             </Text>
 
             <View style={styles.heroStatsRow}>
               <View style={styles.heroStatCard}>
-                <Text style={styles.heroStatValue}>{LANGUAGE_ORDER.length}</Text>
+                <Text style={styles.heroStatValue}>
+                  {LANGUAGE_ORDER.length}
+                </Text>
                 <Text style={styles.heroStatLabel}>Languages</Text>
               </View>
               <View style={styles.heroStatCard}>
                 <Text style={styles.heroStatValue}>
-                  {String(totalCompletedTopics).padStart(2, '0')}/{String(totalTopics).padStart(2, '0')}
+                  {String(totalCompletedTopics).padStart(2, '0')}/
+                  {String(totalTopics).padStart(2, '0')}
                 </Text>
                 <Text style={styles.heroStatLabel}>Completed</Text>
               </View>
               <View style={styles.heroStatCard}>
-                <Text style={styles.heroStatValue}>{100 - totalStartedScore}</Text>
+                <Text style={styles.heroStatValue}>
+                  {100 - totalStartedScore}
+                </Text>
                 <Text style={styles.heroStatLabel}>Remaining</Text>
               </View>
             </View>
@@ -160,7 +175,9 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                 onPress={() => openLanguage(languageKey)}
               >
                 <Icon name={roadmap.icon} size={16} color={roadmap.color} />
-                <Text style={styles.languageChipText}>{roadmap.shortTitle.toUpperCase()}</Text>
+                <Text style={styles.languageChipText}>
+                  {roadmap.shortTitle.toUpperCase()}
+                </Text>
               </TouchableOpacity>
             );
           })}
@@ -168,7 +185,8 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
         <Text style={styles.sectionTitle}>Core Learning Tracks</Text>
         {featuredTracks.map((item) => {
-          const progressWidth = `${Math.max(item.stats.startedScore, 6)}%` as const;
+          const progressWidth =
+            `${Math.max(item.stats.startedScore, 6)}%` as const;
           return (
             <TouchableOpacity
               key={item.key}
@@ -181,28 +199,44 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                 style={styles.trackCard}
               >
                 <View style={styles.trackHeaderRow}>
-                  <View style={[styles.trackIconWrap, { backgroundColor: `${item.color}22` }]}>
+                  <View
+                    style={[
+                      styles.trackIconWrap,
+                      { backgroundColor: `${item.color}22` },
+                    ]}
+                  >
                     <Icon name={item.icon} size={22} color={item.color} />
                   </View>
                   <View style={styles.trackTextWrap}>
                     <Text style={styles.trackTitle}>{item.shortTitle}</Text>
                     <Text style={styles.trackSubtitle}>{item.subtitle}</Text>
                   </View>
-                  <View style={styles.scorePill}>
-                    <Text style={styles.scoreText}>{formatScore(item.stats.startedScore)}/100</Text>
-                  </View>
+                  {/* <View style={styles.scorePill}>
+                    <Text style={styles.scoreText}>
+                      {formatScore(item.stats.startedScore)}/100
+                    </Text>
+                  </View> */}
                 </View>
 
                 <View style={styles.progressBarShell}>
-                  <View style={[styles.progressBarFill, { width: progressWidth, backgroundColor: item.color }]} />
+                  <View
+                    style={[
+                      styles.progressBarFill,
+                      { width: progressWidth, backgroundColor: item.color },
+                    ]}
+                  />
                 </View>
 
                 <View style={styles.trackMetaRow}>
                   <Text style={[styles.trackMeta, { color: item.color }]}>
                     Started {item.stats.startedTopics}/{item.stats.totalTopics}
                   </Text>
-                  <Text style={styles.trackMeta}>Done {item.stats.completedTopics}</Text>
-                  <Text style={styles.trackMeta}>Left {item.stats.remainingScore}</Text>
+                  <Text style={styles.trackMeta}>
+                    Done {item.stats.completedTopics}
+                  </Text>
+                  <Text style={styles.trackMeta}>
+                    Left {item.stats.remainingScore}
+                  </Text>
                 </View>
 
                 <View style={styles.focusWrap}>
@@ -213,7 +247,9 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                   ))}
                 </View>
 
-                <Text style={styles.cardFootnote}>{item.recommendedProject}</Text>
+                <Text style={styles.cardFootnote}>
+                  {item.recommendedProject}
+                </Text>
               </LinearGradient>
             </TouchableOpacity>
           );
@@ -232,13 +268,21 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                 colors={['rgba(12,20,42,0.7)', 'rgba(12,20,42,0.5)']}
                 style={styles.gridCard}
               >
-                <View style={[styles.gridIconWrap, { backgroundColor: `${item.color}24` }]}>
+                <View
+                  style={[
+                    styles.gridIconWrap,
+                    { backgroundColor: `${item.color}24` },
+                  ]}
+                >
                   <Icon name={item.icon} size={20} color={item.color} />
                 </View>
                 <Text style={styles.gridTitle}>{item.shortTitle}</Text>
-                <Text style={styles.gridSubtitle}>{item.focusAreas.join(' | ')}</Text>
+                <Text style={styles.gridSubtitle}>
+                  {item.focusAreas.join(' | ')}
+                </Text>
                 <Text style={[styles.gridMeta, { color: item.color }]}>
-                  {item.stats.completedTopics}/{item.stats.totalTopics} completed
+                  {item.stats.completedTopics}/{item.stats.totalTopics}{' '}
+                  completed
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -251,8 +295,8 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             <Text style={styles.infoTitle}>Included In Every Module</Text>
           </View>
           <Text style={styles.infoText}>
-            Theory notes, practical starter code, challenge checklist, quick quiz, references,
-            aur live topic completion tracking.
+            Theory notes, practical starter code, challenge checklist, quick
+            quiz, references, aur live topic completion tracking.
           </Text>
         </View>
       </Animated.ScrollView>
@@ -275,7 +319,7 @@ const styles = StyleSheet.create({
   },
   heroCard: {
     borderRadius: 24,
-    padding: 18,
+    padding: 12,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.18)',
   },
@@ -286,7 +330,7 @@ const styles = StyleSheet.create({
   },
   heroEyebrow: {
     color: '#B9D8FF',
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -294,7 +338,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     marginTop: 4,
     color: '#FFFFFF',
-    fontSize: 26,
+    fontSize: 18,
     fontWeight: '800',
     maxWidth: '82%',
   },
@@ -309,11 +353,11 @@ const styles = StyleSheet.create({
   heroBadgeText: {
     color: '#FFFFFF',
     fontWeight: '700',
-    fontSize: 12,
+    fontSize: 10,
   },
   heroSubtitle: {
     color: '#E8F2FF',
-    fontSize: 13,
+    fontSize: 11,
     lineHeight: 20,
     marginTop: 12,
   },
@@ -334,7 +378,7 @@ const styles = StyleSheet.create({
   },
   heroStatValue: {
     color: '#F2F8FF',
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: '800',
   },
   heroStatLabel: {
@@ -361,7 +405,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: '#EEF5FF',
     marginBottom: 10,
@@ -383,7 +427,7 @@ const styles = StyleSheet.create({
   },
   languageChipText: {
     color: '#E8F2FF',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
     marginLeft: 8,
   },
@@ -415,13 +459,13 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   trackTitle: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: '800',
     color: '#F2F8FF',
   },
   trackSubtitle: {
     marginTop: 2,
-    fontSize: 12,
+    fontSize: 11,
     color: '#C9DAEE',
   },
   scorePill: {
@@ -432,7 +476,7 @@ const styles = StyleSheet.create({
   },
   scoreText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
   progressBarShell: {
@@ -508,7 +552,7 @@ const styles = StyleSheet.create({
   },
   gridTitle: {
     color: '#F3F8FF',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
   },
   gridSubtitle: {
@@ -538,12 +582,12 @@ const styles = StyleSheet.create({
   infoTitle: {
     marginLeft: 8,
     color: '#F2F8FF',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
   },
   infoText: {
     color: '#D0DDEE',
-    fontSize: 12,
+    fontSize: 11,
     lineHeight: 19,
   },
 });

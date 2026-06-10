@@ -1,13 +1,17 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Animated } from 'react-native';
+import { Animated, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HomeStack } from '../stacks/HomeStack';
 import { ExploreScreen } from '../../screens/main/ExploreScreen';
+import { CameraCaptureScreen } from '../../screens/main/CameraCaptureScreen';
 import { NotificationsScreen } from '../../screens/main/NotificationsScreen';
 import { ProfileScreen } from '../../screens/main/ProfileScreen';
-import { Home, Compass, Bell, User } from 'lucide-react-native';
+import { Home, Compass, Camera, Bell, User } from 'lucide-react-native';
 
 const Tab = createBottomTabNavigator();
+const TAB_BAR_HEIGHT = 64;
+const TAB_BAR_SIDE_GAP = 16;
 
 const AnimatedTabIcon = ({
   focused,
@@ -48,33 +52,35 @@ const AnimatedTabIcon = ({
 };
 
 export const BottomTabs: React.FC = () => {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 0);
+  const tabBarHeight = TAB_BAR_HEIGHT + bottomInset;
+
   return (
     <Tab.Navigator
       screenOptions={{
         sceneStyle: {
           backgroundColor: '#0F1022',
         },
-        tabBarStyle: {
-          position: 'absolute',
-          left: 16,
-          right: 16,
-          bottom: 14,
-          height: 64,
-          borderRadius: 20,
-          backgroundColor: 'rgba(12, 20, 42, 0.9)',
-          borderTopWidth: 1,
-          borderTopColor: 'rgba(255,255,255,0.18)',
-          elevation: 0,
-        },
+        tabBarHideOnKeyboard: true,
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            height: tabBarHeight,
+            paddingBottom: bottomInset,
+          },
+        ],
         tabBarItemStyle: {
-          paddingTop: 4,
+          height: TAB_BAR_HEIGHT,
+          paddingTop: 6,
+          paddingBottom: 6,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 11.5,
           fontWeight: '600',
-          marginBottom: 4,
+          marginBottom: 2,
         },
-        tabBarActiveTintColor: '#7DD3FC',
+        tabBarActiveTintColor: '#8dd5f7',
         tabBarInactiveTintColor: '#9FB0C4',
         headerStyle: {
           backgroundColor: '#0F1022',
@@ -89,7 +95,12 @@ export const BottomTabs: React.FC = () => {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size, focused }) => (
-            <AnimatedTabIcon focused={focused} color={color} size={size} Icon={Home} />
+            <AnimatedTabIcon
+              focused={focused}
+              color={color}
+              size={size}
+              Icon={Home}
+            />
           ),
         }}
       />
@@ -98,16 +109,40 @@ export const BottomTabs: React.FC = () => {
         component={ExploreScreen}
         options={{
           tabBarIcon: ({ color, size, focused }) => (
-            <AnimatedTabIcon focused={focused} color={color} size={size} Icon={Compass} />
+            <AnimatedTabIcon
+              focused={focused}
+              color={color}
+              size={size}
+              Icon={Compass}
+            />
           ),
         }}
       />
+      {/* <Tab.Screen
+        name="Camera"
+        component={CameraCaptureScreen}
+        options={{
+          tabBarIcon: ({ color, size, focused }) => (
+            <AnimatedTabIcon
+              focused={focused}
+              color={color}
+              size={size}
+              Icon={Camera}
+            />
+          ),
+        }}
+      /> */}
       <Tab.Screen
         name="Notifications"
         component={NotificationsScreen}
         options={{
           tabBarIcon: ({ color, size, focused }) => (
-            <AnimatedTabIcon focused={focused} color={color} size={size} Icon={Bell} />
+            <AnimatedTabIcon
+              focused={focused}
+              color={color}
+              size={size}
+              Icon={Bell}
+            />
           ),
         }}
       />
@@ -116,10 +151,36 @@ export const BottomTabs: React.FC = () => {
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ color, size, focused }) => (
-            <AnimatedTabIcon focused={focused} color={color} size={size} Icon={User} />
+            <AnimatedTabIcon
+              focused={focused}
+              color={color}
+              size={size}
+              Icon={User}
+            />
           ),
         }}
       />
     </Tab.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  tabBar: {
+    position: 'absolute',
+    left: TAB_BAR_SIDE_GAP,
+    right: TAB_BAR_SIDE_GAP,
+    bottom: 0,
+    height: TAB_BAR_HEIGHT,
+    // borderRadius: 20,
+    backgroundColor: 'rgba(12, 20, 42, 0.94)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.18)',
+    // borderWidth: 1,
+    // borderColor: 'rgba(255,255,255,0.14)',
+    // shadowColor: '#000000',
+    // shadowOffset: { width: 0, height: 8 },
+    // shadowOpacity: 0.18,
+    // shadowRadius: 16,
+    // elevation: 12,
+  },
+});

@@ -1,9 +1,14 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import {
   getTopicCountForLanguage,
   getTopicsForLanguage,
   LanguageKey,
 } from '../data/learningRoadmaps';
+import {
+  markTopicStarted as markTopicStartedAction,
+  toggleTopicCompleted as toggleTopicCompletedAction,
+} from '../store/learningProgressSlice';
+import { useAppDispatch, useAppSelector } from '../store/store';
 
 type LearningProgressContextValue = {
   startedTopicIds: string[];
@@ -27,23 +32,56 @@ const LearningProgressContext = createContext<LearningProgressContextValue | und
 export const LearningProgressProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [startedTopicIds, setStartedTopicIds] = useState<string[]>([]);
-  const [completedTopicIds, setCompletedTopicIds] = useState<string[]>([]);
+  const dispatch = useAppDispatch();
+  const startedTopicIds = useAppSelector(
+    (state) => state.learningProgress.startedTopicIds,
+  );
+  const completedTopicIds = useAppSelector(
+    (state) => state.learningProgress.completedTopicIds,
+  );
 
   const markTopicStarted = useCallback((topicId: string) => {
-    setStartedTopicIds((previous) =>
-      previous.includes(topicId) ? previous : [...previous, topicId],
-    );
-  }, []);
+    dispatch(markTopicStartedAction(topicId));
+  }, [dispatch]);
 
   const toggleTopicCompleted = useCallback((topicId: string) => {
-    markTopicStarted(topicId);
-    setCompletedTopicIds((previous) =>
-      previous.includes(topicId)
-        ? previous.filter((currentId) => currentId !== topicId)
-        : [...previous, topicId],
-    );
-  }, [markTopicStarted]);
+    dispatch(toggleTopicCompletedAction(topicId));
+  }, [dispatch]);
+
+  const isTopicStarted = useCallback(
+    (topicId: string) => startedTopicIds.includes(topicId),
+    [startedTopicIds],
+  );
+
+  const isTopicCompleted = useCallback(
+    (topicId: string) => completedTopicIds.includes(topicId),
+    [completedTopicIds],
+  );
+
+  const getLanguageStats = useCallback(
+    (languageKey: LanguageKey) => {
+      const topicIds = getTopicsForLanguage(languageKey).map((topic) => topic.id);
+      const totalTopics = getTopicCountForLanguage(languageKey);
+      const startedTopics = topicIds.filter((topicId) =>
+        startedTopicIds.includes(topicId),
+      ).length;
+      const completedTopics = topicIds.filter((topicId) =>
+        completedTopicIds.includes(topicId),
+      ).length;
+      const startedScore = Math.round((startedTopics / totalTopics) * 100);
+      const completedScore = Math.round((completedTopics / totalTopics) * 100);
+
+      return {
+        startedTopics,
+        completedTopics,
+        totalTopics,
+        startedScore,
+        completedScore,
+        remainingScore: Math.max(0, 100 - startedScore),
+      };
+    },
+    [completedTopicIds, startedTopicIds],
+  );
 
   const value = useMemo<LearningProgressContextValue>(
     () => ({
@@ -51,29 +89,19 @@ export const LearningProgressProvider: React.FC<{ children: React.ReactNode }> =
       completedTopicIds,
       markTopicStarted,
       toggleTopicCompleted,
-      isTopicStarted: (topicId: string) => startedTopicIds.includes(topicId),
-      isTopicCompleted: (topicId: string) => completedTopicIds.includes(topicId),
-      getLanguageStats: (languageKey: LanguageKey) => {
-        const topicIds = getTopicsForLanguage(languageKey).map((topic) => topic.id);
-        const totalTopics = getTopicCountForLanguage(languageKey);
-        const startedTopics = topicIds.filter((topicId) => startedTopicIds.includes(topicId)).length;
-        const completedTopics = topicIds.filter((topicId) =>
-          completedTopicIds.includes(topicId),
-        ).length;
-        const startedScore = Math.round((startedTopics / totalTopics) * 100);
-        const completedScore = Math.round((completedTopics / totalTopics) * 100);
-
-        return {
-          startedTopics,
-          completedTopics,
-          totalTopics,
-          startedScore,
-          completedScore,
-          remainingScore: Math.max(0, 100 - startedScore),
-        };
-      },
+      isTopicStarted,
+      isTopicCompleted,
+      getLanguageStats,
     }),
-    [completedTopicIds, markTopicStarted, startedTopicIds, toggleTopicCompleted],
+    [
+      completedTopicIds,
+      getLanguageStats,
+      isTopicCompleted,
+      isTopicStarted,
+      markTopicStarted,
+      startedTopicIds,
+      toggleTopicCompleted,
+    ],
   );
 
   return (

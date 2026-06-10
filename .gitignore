@@ -14,6 +14,7 @@ expo-env.d.ts
 *.p12
 *.key
 *.mobileprovision
+android/.kotlin/
 
 # metro
 .metro-health-check*
@@ -22,6 +23,7 @@ expo-env.d.ts
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+.yarn/install-state.gz
 
 # macos
 .DS_Store

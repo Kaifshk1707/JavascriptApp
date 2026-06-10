@@ -126,7 +126,225 @@ export const EXPANDED_LANGUAGE_KEYS: LanguageKey[] = [
   'bootstrap',
 ];
 
-export const LEARNING_ROADMAPS: Record<LanguageKey, LanguageRoadmap> = {
+type PracticeExpansionConfig = {
+  key: LanguageKey;
+  label: string;
+  toolkit: string;
+  productionFocus: string;
+  debuggingFocus: string;
+  capstoneFocus: string;
+  starterCode: string;
+};
+
+const createPracticeExpansionSection = ({
+  key,
+  label,
+  toolkit,
+  productionFocus,
+  debuggingFocus,
+  capstoneFocus,
+  starterCode,
+}: PracticeExpansionConfig): TopicSection =>
+  createSection({
+    id: `${key}-applied-practice`,
+    title: `${label} Applied Practice`,
+    subtitle: `Production checks, debugging habits, and a final ${label} workflow`,
+    topics: [
+      createTopic({
+        id: `${key}-production-checklist`,
+        title: `${label} Production Checklist`,
+        summary: `Turn ${label} knowledge into a repeatable quality checklist.`,
+        level: 'Intermediate',
+        duration: '1h 20m',
+        points: [
+          `Identify the most important ${label} quality checks`,
+          `Review structure, naming, and maintainability`,
+          `Prepare work so another developer can understand it quickly`,
+        ],
+        theory: [
+          `A production checklist converts scattered ${label} skills into a repeatable review process before shipping work.`,
+          `${productionFocus} should be checked deliberately instead of only after something breaks.`,
+        ],
+        practicalTitle: `Audit a ${label} feature`,
+        practicalGoal: `Review a small ${label} implementation and improve the parts that create future maintenance risk.`,
+        practicalSteps: [
+          `Read the feature once without editing it.`,
+          `List structure, naming, and behavior issues.`,
+          `Apply the smallest clear fixes and retest the result.`,
+        ],
+        starterCode,
+        expectedResult: [
+          `The feature is easier to scan and explain.`,
+          `The final version keeps behavior stable while improving quality.`,
+        ],
+        challenge: [
+          `Create your own 6-point ${label} review checklist.`,
+          `Use the checklist on one previous topic from this roadmap.`,
+        ],
+        references: [`${label} quality review`, toolkit, productionFocus],
+        quizQuestion: `Why should ${label} work have a checklist before shipping?`,
+        quizAnswer:
+          'A checklist makes quality repeatable and catches structure, behavior, and maintenance issues before release.',
+      }),
+      createTopic({
+        id: `${key}-debugging-workflow`,
+        title: `${label} Debugging Workflow`,
+        summary: `Use a calm, step-by-step debugging process for ${label} problems.`,
+        level: 'Intermediate',
+        duration: '1h 30m',
+        points: [
+          `Reproduce the issue before changing code`,
+          `Separate symptoms from root causes`,
+          `Verify each fix with a focused retest`,
+        ],
+        theory: [
+          `Good debugging starts by making the problem reproducible. Guessing too early usually creates unrelated changes.`,
+          `${debuggingFocus} gives you a practical place to inspect first when ${label} behavior looks wrong.`,
+        ],
+        practicalTitle: `Debug a broken ${label} example`,
+        practicalGoal: `Find one visible bug, explain why it happens, and fix it without changing unrelated behavior.`,
+        practicalSteps: [
+          `Write the exact failure in one sentence.`,
+          `Inspect inputs, outputs, and the smallest affected block.`,
+          `Apply one fix and confirm the result.`,
+        ],
+        starterCode,
+        expectedResult: [
+          `The issue has a clear cause instead of a guessed fix.`,
+          `The retest proves the changed behavior works.`,
+        ],
+        challenge: [
+          `Document the bug, root cause, and final fix in three bullets.`,
+          `Create one extra edge case and test it.`,
+        ],
+        references: [`${label} debugging`, debuggingFocus, 'Focused retesting'],
+        quizQuestion: 'What should you do before editing code during debugging?',
+        quizAnswer:
+          'Reproduce the issue and identify the smallest affected area so the fix stays focused.',
+      }),
+      createTopic({
+        id: `${key}-capstone-review`,
+        title: `${label} Capstone Review`,
+        summary: `Finish a complete ${label} task and review it like a real project handoff.`,
+        level: 'Advanced',
+        duration: '2h 10m',
+        points: [
+          `Plan the final output before implementation`,
+          `Connect earlier roadmap concepts into one workflow`,
+          `Review usability, correctness, and maintainability`,
+        ],
+        theory: [
+          `A capstone proves that individual topics can work together in one coherent feature.`,
+          `${capstoneFocus} helps the final output feel complete instead of looking like separate practice snippets.`,
+        ],
+        practicalTitle: `Build a ${label} mini capstone`,
+        practicalGoal: `Create a small final project that combines structure, behavior, and review discipline.`,
+        practicalSteps: [
+          `Define the target user and expected result.`,
+          `Build the smallest complete version first.`,
+          `Run a final review pass and note the improvements.`,
+        ],
+        starterCode,
+        expectedResult: [
+          `The capstone works as one complete deliverable.`,
+          `The final review notes what was improved and why.`,
+        ],
+        challenge: [
+          `Add one accessibility, performance, or reliability improvement.`,
+          `Explain the final project to another learner in five sentences.`,
+        ],
+        references: [`${label} capstone`, capstoneFocus, 'Project handoff'],
+        quizQuestion: 'What makes a capstone different from a normal exercise?',
+        quizAnswer:
+          'A capstone combines multiple concepts into a complete project and includes a final quality review.',
+      }),
+    ],
+  });
+
+const PRACTICE_EXPANSION_SECTIONS: Record<LanguageKey, TopicSection> = {
+  html: createPracticeExpansionSection({
+    key: 'html',
+    label: 'HTML',
+    toolkit: 'Semantic tags, forms, metadata, and accessibility landmarks',
+    productionFocus: 'Semantics, alt text, form labels, heading order, and valid document structure',
+    debuggingFocus: 'Broken nesting, missing attributes, invalid paths, and inaccessible form controls',
+    capstoneFocus: 'A multi-section page with navigation, forms, media, metadata, and accessibility checks',
+    starterCode:
+      '<main>\n  <article>\n    <h1>Course Overview</h1>\n    <p>Build semantic pages with accessible structure.</p>\n  </article>\n</main>',
+  }),
+  css: createPracticeExpansionSection({
+    key: 'css',
+    label: 'CSS',
+    toolkit: 'Selectors, layout, responsive rules, custom properties, and component styling',
+    productionFocus: 'Spacing consistency, responsive layout, readable contrast, and reusable class naming',
+    debuggingFocus: 'Cascade order, specificity, flex/grid sizing, overflow, and media query conflicts',
+    capstoneFocus: 'A responsive interface with stable spacing, component states, and design tokens',
+    starterCode:
+      ':root {\n  --space-4: 1rem;\n  --brand: #2563eb;\n}\n\n.card {\n  padding: var(--space-4);\n}',
+  }),
+  javascript: createPracticeExpansionSection({
+    key: 'javascript',
+    label: 'JavaScript',
+    toolkit: 'Functions, arrays, objects, async flows, modules, and DOM behavior',
+    productionFocus: 'Clear function boundaries, safe data handling, loading states, and predictable errors',
+    debuggingFocus: 'Console traces, input validation, promise failures, event listeners, and stale state',
+    capstoneFocus: 'A small interactive feature with data flow, async handling, and user feedback',
+    starterCode:
+      'async function loadLessons() {\n  const response = await fetch("/lessons.json");\n  return response.json();\n}',
+  }),
+  python: createPracticeExpansionSection({
+    key: 'python',
+    label: 'Python',
+    toolkit: 'Functions, collections, files, modules, virtual environments, and scripts',
+    productionFocus: 'Readable functions, input validation, file handling, and predictable script output',
+    debuggingFocus: 'Tracebacks, variable inspection, type mismatches, file paths, and boundary cases',
+    capstoneFocus: 'A command-line utility that reads input, transforms data, and reports results',
+    starterCode:
+      'def summarize_scores(scores):\n    total = sum(scores)\n    return total / len(scores)\n\nprint(summarize_scores([8, 9, 10]))',
+  }),
+  react: createPracticeExpansionSection({
+    key: 'react',
+    label: 'React',
+    toolkit: 'Components, props, hooks, derived state, effects, and rendering patterns',
+    productionFocus: 'Component boundaries, stable props, controlled state, loading UI, and reusable views',
+    debuggingFocus: 'Render loops, stale closures, dependency arrays, prop shape, and conditional rendering',
+    capstoneFocus: 'A feature screen with reusable components, state updates, and clear empty/loading states',
+    starterCode:
+      'function LessonCard({ title, progress }) {\n  return <article>{title} - {progress}%</article>;\n}',
+  }),
+  sql: createPracticeExpansionSection({
+    key: 'sql',
+    label: 'SQL',
+    toolkit: 'Tables, joins, filters, grouping, indexes, constraints, and query planning',
+    productionFocus: 'Correct joins, explicit filters, safe aggregation, indexes, and readable query formatting',
+    debuggingFocus: 'Unexpected row counts, null handling, join type mistakes, and grouping errors',
+    capstoneFocus: 'A reporting query set that answers clear product questions from related tables',
+    starterCode:
+      'SELECT users.name, COUNT(lessons.id) AS lesson_count\nFROM users\nLEFT JOIN lessons ON lessons.user_id = users.id\nGROUP BY users.id;',
+  }),
+  nodejs: createPracticeExpansionSection({
+    key: 'nodejs',
+    label: 'Node.js',
+    toolkit: 'Modules, Express routes, middleware, async handlers, validation, and API responses',
+    productionFocus: 'Route structure, request validation, error handling, environment values, and response shape',
+    debuggingFocus: 'Request logs, rejected promises, middleware order, status codes, and missing env config',
+    capstoneFocus: 'A small API with routes, validation, async data access, and consistent error responses',
+    starterCode:
+      'app.get("/api/lessons", async (req, res, next) => {\n  try {\n    res.json({ data: [] });\n  } catch (error) {\n    next(error);\n  }\n});',
+  }),
+  bootstrap: createPracticeExpansionSection({
+    key: 'bootstrap',
+    label: 'Bootstrap',
+    toolkit: 'Grid, utilities, components, responsive breakpoints, forms, and theme overrides',
+    productionFocus: 'Responsive grid choices, accessible components, utility consistency, and branded overrides',
+    debuggingFocus: 'Breakpoint conflicts, nested rows, spacing utilities, component states, and override order',
+    capstoneFocus: 'A polished responsive page that combines grid, components, forms, and custom theme rules',
+    starterCode:
+      '<section class="container py-5">\n  <div class="row g-4">\n    <div class="col-md-6">Content</div>\n  </div>\n</section>',
+  }),
+};
+
+const BASE_LEARNING_ROADMAPS: Record<LanguageKey, LanguageRoadmap> = {
   html: {
     key: 'html',
     title: 'HTML Learning Module',
@@ -3631,6 +3849,24 @@ export const LEARNING_ROADMAPS: Record<LanguageKey, LanguageRoadmap> = {
     ],
   },
 };
+
+const addExpansionHours = (totalHours: string) => {
+  const currentHours = Number.parseInt(totalHours, 10);
+  return Number.isNaN(currentHours) ? totalHours : `${currentHours + 5}h`;
+};
+
+export const LEARNING_ROADMAPS: Record<LanguageKey, LanguageRoadmap> =
+  LANGUAGE_ORDER.reduce((roadmaps, key) => {
+    const roadmap = BASE_LEARNING_ROADMAPS[key];
+
+    roadmaps[key] = {
+      ...roadmap,
+      totalHours: addExpansionHours(roadmap.totalHours),
+      sections: [...roadmap.sections, PRACTICE_EXPANSION_SECTIONS[key]],
+    };
+
+    return roadmaps;
+  }, {} as Record<LanguageKey, LanguageRoadmap>);
 
 export const getTopicsForLanguage = (languageKey: LanguageKey): TopicItem[] =>
   LEARNING_ROADMAPS[languageKey].sections.flatMap((section) => section.topics);
