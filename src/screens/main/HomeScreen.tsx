@@ -13,43 +13,62 @@ import {
   EXPANDED_LANGUAGE_KEYS,
   FEATURED_LANGUAGE_KEYS,
   LANGUAGE_ORDER,
-  LEARNING_ROADMAPS,
+  LANGUAGE_CATEGORIES,
+  LanguageCategory,
   LanguageKey,
-} from '../../data/learningRoadmaps';
+  getLanguageByKey,
+} from '../../content/languageCatalog';
 import { useLearningProgress } from '../../context/LearningProgressContext';
 
 const formatScore = (score: number) => String(score).padStart(2, '0');
 
 const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const scrollY = React.useRef(new Animated.Value(0)).current;
-  const { getLanguageStats } = useLearningProgress();
+  const { getLanguageStats, getResumeTopic, getLearningStreak, getRecentlyLearnedTopics, totalXp, getLevelInfo, getDailyGoalProgress, learningGoal, onboardingCompleted, dailyStudyMinutes, certificatesByTrack } = useLearningProgress();
+  const streak = getLearningStreak();
+  const level = getLevelInfo();
+  const dailyGoal = getDailyGoalProgress();
+  const recentlyLearned = getRecentlyLearnedTopics();
+  const [selectedCategory, setSelectedCategory] = React.useState<LanguageCategory | 'All'>('All');
 
   const featuredTracks = React.useMemo(
     () =>
       FEATURED_LANGUAGE_KEYS.map((key) => {
-        const roadmap = LEARNING_ROADMAPS[key];
+        const roadmap = getLanguageByKey(key)!;
         const stats = getLanguageStats(key);
+        const resumeTopic = getResumeTopic(key);
 
         return {
           ...roadmap,
           stats,
+          resumeTopic,
         };
       }),
-    [getLanguageStats],
+    [getLanguageStats, getResumeTopic],
   );
 
   const expandedTracks = React.useMemo(
     () =>
       EXPANDED_LANGUAGE_KEYS.map((key) => {
-        const roadmap = LEARNING_ROADMAPS[key];
+        const roadmap = getLanguageByKey(key)!;
         const stats = getLanguageStats(key);
+        const resumeTopic = getResumeTopic(key);
 
         return {
           ...roadmap,
           stats,
+          resumeTopic,
         };
       }),
-    [getLanguageStats],
+    [getLanguageStats, getResumeTopic],
+  );
+  const visibleLanguageKeys = React.useMemo(
+    () => LANGUAGE_ORDER.filter((key) => selectedCategory === 'All' || getLanguageByKey(key)?.category === selectedCategory),
+    [selectedCategory],
+  );
+  const visibleExpandedTracks = React.useMemo(
+    () => expandedTracks.filter((item) => selectedCategory === 'All' || item.category === selectedCategory),
+    [expandedTracks, selectedCategory],
   );
 
   const totalStartedScore = Math.round(
@@ -156,17 +175,54 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
               <Text style={styles.heroButtonText}>Start HTML Module</Text>
               <Icon name="arrow-forward" size={16} color="#FFFFFF" />
             </TouchableOpacity>
+            <TouchableOpacity style={styles.planButton} accessibilityRole="button" accessibilityLabel={learningGoal ? 'Open your learning plan' : 'Build your learning plan'} onPress={() => navigation.navigate(learningGoal ? 'LearningPlan' : 'Onboarding')}>
+              <View style={styles.planBody}><Text style={styles.planEyebrow}>{learningGoal ? 'Your Plan' : 'Personalize Learning'}</Text><Text style={styles.planTitle}>{learningGoal ? `${learningGoal.replace(/-/g, ' ')}` : 'Build My Learning Plan'}</Text><Text style={styles.planMeta}>{learningGoal ? `Next step | ${dailyStudyMinutes} min/day` : onboardingCompleted ? 'Choose a goal to get started' : '3 quick choices, fully offline'}</Text></View><Icon name="arrow-forward" size={18} color="#FFFFFF" /></TouchableOpacity>
+            <View style={styles.studyToolsRow}>
+              <TouchableOpacity style={styles.studyTool} onPress={() => navigation.navigate('LearningSearch')}><Icon name="search" size={16} color="#FFFFFF" /><Text style={styles.studyToolText}>Search</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.studyTool} onPress={() => navigation.navigate('SavedLessons')}><Icon name="bookmark-outline" size={16} color="#FFFFFF" /><Text style={styles.studyToolText}>Saved</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.studyTool} onPress={() => navigation.navigate('ReviewScreen')}><Icon name="refresh-outline" size={16} color="#FFFFFF" /><Text style={styles.studyToolText}>Review</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.studyTool} onPress={() => navigation.navigate('PracticeScreen')}><Icon name="play-outline" size={16} color="#FFFFFF" /><Text style={styles.studyToolText}>Practice</Text></TouchableOpacity>
+              <Text style={styles.streakText}>Streak {streak.current}d</Text>
+            </View>
+            <View style={styles.gamificationRow} accessibilityLabel={`Level ${level.level}, ${totalXp} XP, today ${dailyGoal.earned} of ${dailyGoal.goal ?? 0} XP, streak ${streak.current} days`}>
+              <View style={styles.gamificationItem}><Text style={styles.gamificationValue}>Lv {level.level}</Text><Text style={styles.gamificationLabel}>{totalXp} XP</Text></View>
+              <View style={styles.gamificationItem}><Text style={styles.gamificationValue}>{dailyGoal.goal === null ? 'No goal' : `${dailyGoal.earned}/${dailyGoal.goal}`}</Text><Text style={styles.gamificationLabel}>Today</Text></View>
+              <TouchableOpacity style={styles.gamificationAction} accessibilityRole="button" accessibilityLabel="Open learning stats" onPress={() => navigation.navigate('LearningStatsScreen')}><Icon name="stats-chart-outline" size={17} color="#FFFFFF" /><Text style={styles.gamificationActionText}>Stats</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.gamificationAction} accessibilityRole="button" accessibilityLabel="Open achievements" onPress={() => navigation.navigate('AchievementsScreen')}><Icon name="trophy-outline" size={17} color="#FFFFFF" /><Text style={styles.gamificationActionText}>Awards</Text></TouchableOpacity>
+              <TouchableOpacity style={styles.gamificationAction} accessibilityRole="button" accessibilityLabel="Open certificates" onPress={() => navigation.navigate('CertificatesScreen')}><Icon name="ribbon-outline" size={17} color="#FFFFFF" /><Text style={styles.gamificationActionText}>{Object.keys(certificatesByTrack).length} Certs</Text></TouchableOpacity>
+            </View>
+            <TouchableOpacity
+              style={styles.searchButton}
+              activeOpacity={0.88}
+              onPress={() => navigation.navigate('LearningSearch')}
+              accessibilityLabel="Search learning content"
+            >
+              <Icon name="search" size={17} color="#FFFFFF" />
+              <Text style={styles.searchButtonText}>Search lessons</Text>
+            </TouchableOpacity>
           </LinearGradient>
         </Animated.View>
 
         <Text style={styles.sectionTitle}>Browse Languages</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.languageTabs}>
+          {(['All', ...LANGUAGE_CATEGORIES] as const).map((category) => (
+            <TouchableOpacity key={category} style={[styles.categoryChip, selectedCategory === category && styles.categoryChipActive]} onPress={() => setSelectedCategory(category)}>
+              <Text style={styles.categoryChipText}>{category}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.languageTabs}
         >
-          {LANGUAGE_ORDER.map((languageKey) => {
-            const roadmap = LEARNING_ROADMAPS[languageKey];
+          {visibleLanguageKeys.map((languageKey) => {
+            const roadmap = getLanguageByKey(languageKey);
+
+            if (!roadmap) {
+              return null;
+            }
+
             return (
               <TouchableOpacity
                 key={languageKey}
@@ -229,7 +285,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
                 <View style={styles.trackMetaRow}>
                   <Text style={[styles.trackMeta, { color: item.color }]}>
-                    Started {item.stats.startedTopics}/{item.stats.totalTopics}
+                    {item.stats.completedScore}% complete
                   </Text>
                   <Text style={styles.trackMeta}>
                     Done {item.stats.completedTopics}
@@ -238,6 +294,12 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                     Left {item.stats.remainingScore}
                   </Text>
                 </View>
+
+                {item.resumeTopic ? (
+                  <Text style={styles.continueText}>
+                    Continue: {item.resumeTopic.title}
+                  </Text>
+                ) : null}
 
                 <View style={styles.focusWrap}>
                   {item.focusAreas.map((focus) => (
@@ -257,7 +319,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
         <Text style={styles.sectionTitle}>More Languages</Text>
         <View style={styles.grid}>
-          {expandedTracks.map((item) => (
+          {visibleExpandedTracks.map((item) => (
             <TouchableOpacity
               key={item.key}
               style={styles.gridCardWrap}
@@ -281,13 +343,24 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                   {item.focusAreas.join(' | ')}
                 </Text>
                 <Text style={[styles.gridMeta, { color: item.color }]}>
-                  {item.stats.completedTopics}/{item.stats.totalTopics}{' '}
-                  completed
+                  {item.stats.completedScore}% complete
                 </Text>
+                {item.resumeTopic ? (
+                  <Text style={styles.gridContinueText}>
+                    Continue: {item.resumeTopic.title}
+                  </Text>
+                ) : null}
               </LinearGradient>
             </TouchableOpacity>
           ))}
         </View>
+
+        {recentlyLearned.length ? <>
+          <Text style={styles.sectionTitle}>Recently Learned</Text>
+          <View style={styles.recentList}>
+            {recentlyLearned.map((topic) => <TouchableOpacity key={topic.id} style={styles.recentRow} onPress={() => navigation.navigate('LearningTopicDetail', { languageKey: topic.languageKey, topicId: topic.id })}><View style={styles.recentDot} /><View style={styles.recentBody}><Text style={styles.recentTitle}>{topic.title}</Text><Text style={styles.recentMeta}>{topic.languageName}  |  {topic.level}</Text></View><Icon name="chevron-forward" size={16} color="#C9DAEE" /></TouchableOpacity>)}
+          </View>
+        </> : null}
 
         <View style={styles.infoCard}>
           <View style={styles.infoHeader}>
@@ -404,6 +477,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginRight: 8,
   },
+  searchButton: { marginTop: 9, borderRadius: 14, paddingVertical: 11, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
+  searchButtonText: { color: '#FFFFFF', fontWeight: '700', fontSize: 13, marginLeft: 7 },
+  planButton: { flexDirection: 'row', alignItems: 'center', marginTop: 10, padding: 12, borderRadius: 13, backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' },
+  planBody: { flex: 1 },
+  planEyebrow: { color: '#FFD27A', fontSize: 10, fontWeight: '800', textTransform: 'uppercase' },
+  planTitle: { color: '#FFFFFF', fontSize: 14, fontWeight: '800', marginTop: 3, textTransform: 'capitalize' },
+  planMeta: { color: '#C9DAEE', fontSize: 11, marginTop: 3 },
+  studyToolsRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10, gap: 7 },
+  studyTool: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 9, paddingVertical: 8, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.09)' },
+  studyToolText: { color: '#FFFFFF', fontSize: 11, fontWeight: '700', marginLeft: 5 },
+  streakText: { flex: 1, textAlign: 'right', color: '#FFD59A', fontSize: 11, fontWeight: '800' },
+  gamificationRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10, padding: 9, borderRadius: 13, backgroundColor: 'rgba(12,20,42,0.34)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.13)' },
+  gamificationItem: { marginRight: 13 },
+  gamificationValue: { color: '#FFFFFF', fontSize: 12, fontWeight: '800' },
+  gamificationLabel: { color: '#BFD2E8', fontSize: 9, marginTop: 2 },
+  gamificationAction: { marginLeft: 'auto', alignItems: 'center', paddingHorizontal: 5 },
+  gamificationActionText: { color: '#FFFFFF', fontSize: 9, fontWeight: '700', marginTop: 2 },
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
@@ -431,6 +521,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginLeft: 8,
   },
+  categoryChip: { paddingHorizontal: 12, paddingVertical: 8, marginRight: 8, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)' },
+  categoryChipActive: { backgroundColor: 'rgba(142,203,255,0.2)', borderColor: '#8ECBFF' },
+  categoryChipText: { color: '#DCEBFA', fontSize: 11, fontWeight: '700' },
   trackCardWrap: {
     borderRadius: 18,
     overflow: 'hidden',
@@ -524,6 +617,12 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: '#AFBED2',
   },
+  continueText: {
+    marginTop: 8,
+    color: '#E8F2FF',
+    fontSize: 12,
+    fontWeight: '700',
+  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -566,6 +665,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
+  gridContinueText: {
+    marginTop: 6,
+    color: '#DDE9F7',
+    fontSize: 11,
+    lineHeight: 16,
+    fontWeight: '600',
+  },
+  recentList: { marginBottom: 14 },
+  recentRow: { flexDirection: 'row', alignItems: 'center', padding: 12, marginBottom: 7, borderRadius: 13, backgroundColor: 'rgba(12,20,42,0.54)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' },
+  recentDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#8ECBFF', marginRight: 10 },
+  recentBody: { flex: 1 }, recentTitle: { color: '#F2F8FF', fontSize: 13, fontWeight: '700' }, recentMeta: { marginTop: 3, color: '#9FC7F1', fontSize: 10, fontWeight: '600' },
   infoCard: {
     marginTop: 6,
     borderRadius: 18,

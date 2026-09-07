@@ -17,7 +17,11 @@ export const loadPersistedState = async (): Promise<Partial<RootState> | undefin
     return undefined;
   }
 
-  return JSON.parse(rawState) as Partial<RootState>;
+  try {
+    return JSON.parse(rawState) as Partial<RootState>;
+  } catch {
+    return undefined;
+  }
 };
 
 export const savePersistedState = async (state: RootState) => {

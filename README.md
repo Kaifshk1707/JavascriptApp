@@ -10,6 +10,24 @@ A complete React Native application built with Expo, featuring modern navigation
 - 🔐 Authentication flow (Login/Register)
 - 📱 Modern UI with clean design
 - 💡 Context API for state management
+- 📚 Offline programming language roadmaps with persisted learning progress
+
+Learning tracks currently include HTML, CSS, JavaScript, Python, React, SQL, Node.js, Bootstrap, TypeScript, Java, C, C++, C#, PHP, Go, Rust, Kotlin, Swift, Dart / Flutter, and Ruby.
+
+## Learning Content
+
+Offline lesson content is organized under `src/content/`.
+
+- `src/content/languageCatalog.ts` contains lightweight language metadata and topic IDs for dashboards/progress.
+- `src/content/languages/*/roadmap.ts` contains per-language lesson content.
+- `src/content/index.ts` exposes full roadmap lookups for lesson screens.
+- `src/data/learningRoadmaps.ts` remains as a compatibility re-export for older imports.
+
+Validate content during development:
+
+```bash
+npm run validate:content
+```
 
 ## Project Structure
 

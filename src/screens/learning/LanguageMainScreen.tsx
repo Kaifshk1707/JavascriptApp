@@ -1,12 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Animated, TouchableOpacity, ScrollView } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {
-  LEARNING_ROADMAPS,
+  LEVEL_FILTERS,
+  getLanguageRoadmap,
   LanguageKey,
   TopicItem,
-} from '../../data/learningRoadmaps';
+  TopicMetadata,
+  TopicLevel,
+} from '../../content';
 import { useLearningProgress } from '../../context/LearningProgressContext';
 
 type Props = {
@@ -19,19 +22,45 @@ const formatScore = (score: number) => String(score).padStart(2, '0');
 
 const LanguageMainScreen: React.FC<Props> = ({ navigation, route, languageKey }) => {
   const resolvedLanguageKey = (languageKey || route?.params?.languageKey || 'html') as LanguageKey;
-  const roadmap = LEARNING_ROADMAPS[resolvedLanguageKey];
+  const roadmap = getLanguageRoadmap(resolvedLanguageKey);
   const scrollY = React.useRef(new Animated.Value(0)).current;
-  const { getLanguageStats, isTopicCompleted, isTopicStarted } = useLearningProgress();
+  const { getLanguageStats, getRecommendedTopic, getTrackCompletion, isTopicCompleted, isTopicStarted } =
+    useLearningProgress();
+  const [selectedLevel, setSelectedLevel] = React.useState<TopicLevel | 'All'>('All');
   const stats = getLanguageStats(resolvedLanguageKey);
+  const completion = getTrackCompletion(resolvedLanguageKey);
+  const recommendedTopic = getRecommendedTopic(resolvedLanguageKey);
 
-  const openTopic = (topic: TopicItem) => {
+  const openTopic = (topic: TopicItem | TopicMetadata) => {
     navigation.navigate('LearningTopicDetail', {
       languageKey: resolvedLanguageKey,
-      languageTitle: roadmap.shortTitle,
-      languageColor: roadmap.color,
-      topic,
+      topicId: topic.id,
     });
   };
+
+  if (!roadmap) {
+    return (
+      <LinearGradient colors={['#0F1022', '#243B55', '#D35D6E']} style={styles.container}>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Language not found.</Text>
+        </View>
+      </LinearGradient>
+    );
+  }
+
+  const filteredSections = React.useMemo(
+    () =>
+      roadmap.sections
+        .map((section) => ({
+          ...section,
+          topics:
+            selectedLevel === 'All'
+              ? section.topics
+              : section.topics.filter((topic) => topic.level === selectedLevel),
+        }))
+        .filter((section) => section.topics.length > 0),
+    [roadmap.sections, selectedLevel],
+  );
 
   const heroTranslateY = scrollY.interpolate({
     inputRange: [0, 120],
@@ -91,6 +120,53 @@ const LanguageMainScreen: React.FC<Props> = ({ navigation, route, languageKey })
             </View>
           </View>
 
+          <View style={styles.levelProgressRow}>
+            {(['Beginner', 'Intermediate', 'Advanced'] as TopicLevel[]).map((level) => {
+              const levelStat = stats.levelStats[level];
+
+              return (
+                <View key={level} style={styles.levelProgressItem}>
+                  <Text style={[styles.levelProgressValue, { color: roadmap.color }]}>
+                    {levelStat.completed}/{levelStat.total}
+                  </Text>
+                  <Text style={styles.levelProgressLabel}>{level}</Text>
+                </View>
+              );
+            })}
+          </View>
+
+          <View style={styles.completionSummary} accessibilityLabel={`${completion.state}, ${completion.percent}% track progress`}>
+            <View style={styles.completionSummaryTop}>
+              <Text style={styles.completionState}>{completion.state}</Text>
+              <Text style={styles.completionPercent}>{completion.percent}%</Text>
+            </View>
+            <View style={styles.completionBar}><View style={[styles.completionFill, { width: `${completion.percent}%`, backgroundColor: roadmap.color }]} /></View>
+          </View>
+
+          {recommendedTopic ? (
+            <TouchableOpacity
+              style={styles.resumeButton}
+              activeOpacity={0.9}
+              onPress={() => openTopic(recommendedTopic)}
+            >
+              <View style={styles.resumeTextWrap}>
+                <Text style={styles.resumeLabel}>
+                  {stats.startedTopics === 0 ? 'Start Here' : 'Recommended Next'}
+                </Text>
+                <Text style={styles.resumeTitle}>{recommendedTopic.title}</Text>
+              </View>
+              <Icon name="arrow-forward" size={17} color="#FFFFFF" />
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.resumeButton}>
+              <View style={styles.resumeTextWrap}>
+                <Text style={styles.resumeLabel}>Roadmap Complete</Text>
+                <Text style={styles.resumeTitle}>All lessons are marked complete.</Text>
+              </View>
+              <Icon name="checkmark-circle" size={17} color="#FFFFFF" />
+            </View>
+          )}
+
           <View style={styles.focusWrap}>
             {roadmap.focusAreas.map((focus) => (
               <View key={focus} style={styles.focusChip}>
@@ -104,7 +180,39 @@ const LanguageMainScreen: React.FC<Props> = ({ navigation, route, languageKey })
 
         <Text style={styles.sectionTitle}>Learning Sections</Text>
 
-        {roadmap.sections.map((section) => {
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.levelTabs}
+        >
+          {LEVEL_FILTERS.map((level) => {
+            const active = selectedLevel === level;
+
+            return (
+              <TouchableOpacity
+                key={level}
+                style={[
+                  styles.levelTab,
+                  active && { borderColor: roadmap.color, backgroundColor: `${roadmap.color}22` },
+                ]}
+                activeOpacity={0.86}
+                onPress={() => setSelectedLevel(level)}
+              >
+                <Text style={[styles.levelTabText, active && { color: roadmap.color }]}>
+                  {level === 'Beginner' ? 'Basic' : level}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        {filteredSections.length === 0 ? (
+          <View style={styles.emptyLevelCard}>
+            <Text style={styles.emptyLevelText}>No topics for this level yet.</Text>
+          </View>
+        ) : null}
+
+        {filteredSections.map((section) => {
           const sectionCompleted = section.topics.filter((topic) => isTopicCompleted(topic.id)).length;
 
           return (
@@ -124,6 +232,7 @@ const LanguageMainScreen: React.FC<Props> = ({ navigation, route, languageKey })
               {section.topics.map((topic, index) => {
                 const started = isTopicStarted(topic.id);
                 const completed = isTopicCompleted(topic.id);
+                const recommended = recommendedTopic?.id === topic.id;
 
                 return (
                   <TouchableOpacity
@@ -157,8 +266,13 @@ const LanguageMainScreen: React.FC<Props> = ({ navigation, route, languageKey })
                         </View>
                         <Text style={styles.topicSummary}>{topic.summary}</Text>
                         <Text style={[styles.meta, { color: roadmap.color }]}>
-                          {topic.level} | {topic.duration}
+                          {topic.level === 'Beginner' ? 'Basic' : topic.level} | {topic.duration}
                         </Text>
+                        {recommended ? (
+                          <Text style={[styles.recommendedText, { color: roadmap.color }]}>
+                            {stats.startedTopics === 0 ? 'Start here' : 'Recommended next'}
+                          </Text>
+                        ) : null}
                         <Text style={styles.docMeta}>
                           Theory {topic.theory.length} | Practical {topic.practical.steps.length} | Quiz{' '}
                           {topic.quiz.length}
@@ -181,6 +295,8 @@ export default LanguageMainScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  emptyText: { fontSize: 16, fontWeight: '600', color: '#F2F8FF' },
   content: { padding: 16, paddingBottom: 28 },
   heroCard: {
     borderRadius: 20,
@@ -250,6 +366,86 @@ const styles = StyleSheet.create({
     color: '#C9DAEE',
     fontSize: 11,
   },
+  levelProgressRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 12,
+  },
+  levelProgressItem: {
+    width: '31%',
+    borderRadius: 12,
+    paddingVertical: 9,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.07)',
+  },
+  levelProgressValue: {
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  levelProgressLabel: {
+    marginTop: 2,
+    color: '#C9DAEE',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  completionSummary: {
+    marginTop: 12,
+    padding: 11,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.07)',
+  },
+  completionSummaryTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  completionState: {
+    color: '#F2F8FF',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  completionPercent: {
+    color: '#FFD27A',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  completionBar: {
+    height: 5,
+    marginTop: 8,
+    borderRadius: 3,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255,255,255,0.12)',
+  },
+  completionFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  resumeButton: {
+    marginTop: 12,
+    borderRadius: 14,
+    paddingHorizontal: 13,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.16)',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  resumeTextWrap: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  resumeLabel: {
+    color: '#B9CBDF',
+    fontSize: 10,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  resumeTitle: {
+    marginTop: 3,
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+  },
   focusWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -279,6 +475,36 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#EEF5FF',
+  },
+  levelTabs: {
+    paddingBottom: 8,
+    marginBottom: 8,
+  },
+  levelTab: {
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginRight: 8,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  levelTabText: {
+    color: '#DDE9F7',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  emptyLevelCard: {
+    borderRadius: 14,
+    padding: 14,
+    backgroundColor: 'rgba(12,20,42,0.5)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  emptyLevelText: {
+    color: '#C9DAEE',
+    fontSize: 13,
+    fontWeight: '600',
   },
   sectionCard: {
     marginBottom: 14,
@@ -362,6 +588,11 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 11,
     color: '#9DB2C8',
+  },
+  recommendedText: {
+    marginTop: 3,
+    fontSize: 11,
+    fontWeight: '800',
   },
   stateBadge: {
     borderRadius: 12,

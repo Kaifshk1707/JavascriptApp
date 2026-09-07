@@ -1,0 +1,9 @@
+import type { CodeExerciseLanguage } from './types';
+export type CodeExerciseAvailability = { language: CodeExerciseLanguage; count: number };
+export const CODE_EXERCISE_AVAILABILITY: Partial<Record<string, CodeExerciseAvailability>> = {
+  'html-text-basics': { language: 'html', count: 1 }, 'html-introduction': { language: 'html', count: 1 }, 'html-forms': { language: 'html', count: 1 }, 'html-semantic-layout': { language: 'html', count: 1 }, 'html-tables': { language: 'html', count: 1 }, 'html-media': { language: 'html', count: 1 }, 'html-seo-meta': { language: 'html', count: 1 },
+  'css-selectors': { language: 'css', count: 1 }, 'css-box-model': { language: 'css', count: 1 }, 'css-flexbox': { language: 'css', count: 1 }, 'css-transforms': { language: 'css', count: 1 }, 'css-responsive': { language: 'css', count: 1 }, 'css-navigation-buttons': { language: 'css', count: 1 }, 'css-variables': { language: 'css', count: 1 }, 'css-effects': { language: 'css', count: 1 },
+  'js-variables': { language: 'javascript', count: 1 }, 'js-control-flow': { language: 'javascript', count: 1 }, 'js-functions': { language: 'javascript', count: 1 }, 'js-events': { language: 'javascript', count: 1 }, 'js-arrays-objects': { language: 'javascript', count: 2 }, 'js-dates-math': { language: 'javascript', count: 1 }, 'js-scope-closures': { language: 'javascript', count: 1 }, 'js-this-context': { language: 'javascript', count: 1 }, 'js-debugging': { language: 'javascript', count: 1 }, 'js-async': { language: 'javascript', count: 1 }, 'js-storage': { language: 'javascript', count: 1 },
+  'python-syntax': { language: 'python', count: 1 }, 'python-flow': { language: 'python', count: 1 }, 'python-functions': { language: 'python', count: 1 }, 'python-lists-dicts': { language: 'python', count: 1 }, 'python-errors': { language: 'python', count: 1 },
+};
+export const getCodeExerciseAvailability = (topicId: string) => CODE_EXERCISE_AVAILABILITY[topicId];
