@@ -1,9 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Animated,
+  TouchableOpacity,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+export const ProfileScreen: React.FC<{ navigation: any }> = ({
+  navigation,
+}) => {
   const scrollY = React.useRef(new Animated.Value(0)).current;
 
   const handleLogout = () => {
@@ -25,13 +33,38 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
   });
 
   const menuItems = [
-    { id: 'download', title: 'Downloads', subtitle: 'Offline lessons and packs', icon: 'download-outline' },
-    { id: 'progress', title: 'Learning Progress', subtitle: 'Track completed modules', icon: 'stats-chart-outline' },
-    { id: 'settings', title: 'Settings', subtitle: 'Account and app preferences', icon: 'settings-outline' },
+    {
+      id: 'camera',
+      title: 'Camera',
+      subtitle: 'Saved learning snapshots',
+      icon: 'camera-outline',
+      routeName: 'Camera',
+    },
+    {
+      id: 'download',
+      title: 'Downloads',
+      subtitle: 'Offline lessons and packs',
+      icon: 'download-outline',
+    },
+    {
+      id: 'progress',
+      title: 'Learning Progress',
+      subtitle: 'Track completed modules',
+      icon: 'stats-chart-outline',
+    },
+    {
+      id: 'settings',
+      title: 'Settings',
+      subtitle: 'Account and app preferences',
+      icon: 'settings-outline',
+    },
   ];
 
   return (
-    <LinearGradient colors={['#0F1022', '#243B55', '#D35D6E']} style={styles.container}>
+    <LinearGradient
+      colors={['#0F1022', '#243B55', '#D35D6E']}
+      style={styles.container}
+    >
       <Animated.ScrollView
         contentContainerStyle={styles.contentWrap}
         showsVerticalScrollIndicator={false}
@@ -44,12 +77,18 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
         <Animated.View
           style={[
             styles.heroCard,
-            { transform: [{ translateY: heroTranslateY }, { scale: heroScale }] },
+            {
+              transform: [{ translateY: heroTranslateY }, { scale: heroScale }],
+            },
           ]}
         >
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>SK</Text>
-          </View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Camera')}
+            style={styles.avatar}
+          >
+            {/* <Text style={styles.avatarText}>SK</Text> */}
+            <Icon name="person" size={43} color="#55aaf5" />
+          </TouchableOpacity>
           <Text style={styles.name}>Shaikh Kaif</Text>
           <Text style={styles.email}>shaikh.kaif@example.com</Text>
           <View style={styles.badge}>
@@ -80,8 +119,19 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
             extrapolate: 'clamp',
           });
           return (
-            <Animated.View key={item.id} style={{ transform: [{ translateY }] }}>
-              <TouchableOpacity activeOpacity={0.9} style={styles.menuWrap}>
+            <Animated.View
+              key={item.id}
+              style={{ transform: [{ translateY }] }}
+            >
+              <TouchableOpacity
+                activeOpacity={0.9}
+                style={styles.menuWrap}
+                onPress={() => {
+                  if (item.routeName) {
+                    navigation.navigate(item.routeName);
+                  }
+                }}
+              >
                 <LinearGradient
                   colors={['rgba(12,20,42,0.72)', 'rgba(12,20,42,0.48)']}
                   style={styles.menuCard}
@@ -100,8 +150,15 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
           );
         })}
 
-        <TouchableOpacity onPress={handleLogout} activeOpacity={0.9} style={styles.logoutWrap}>
-          <LinearGradient colors={['#53A0FD', '#6C63FF']} style={styles.logoutBtn}>
+        <TouchableOpacity
+          onPress={handleLogout}
+          activeOpacity={0.9}
+          style={styles.logoutWrap}
+        >
+          <LinearGradient
+            colors={['#53A0FD', '#6C63FF']}
+            style={styles.logoutBtn}
+          >
             <Icon name="log-out-outline" size={18} color="#FFFFFF" />
             <Text style={styles.logoutBtnText}>Logout</Text>
           </LinearGradient>

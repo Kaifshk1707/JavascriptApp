@@ -10,14 +10,18 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.myapp"
+      "bundleIdentifier": "com.myapp",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow camera access to capture learning photos."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#3B82F6"
       },
-      "package": "com.myapp"
+      "package": "com.myapp",
+      "permissions": ["CAMERA"]
     },
     "web": {
       "bundler": "metro",

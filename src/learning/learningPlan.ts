@@ -1,0 +1,21 @@
+import type { IndexedTopicMetadata } from '../content/topicIndex';
+import { getLanguageTopicsMetadata, getTopicMetadata } from '../content/topicIndex';
+import type { ExperienceLevel, LearningGoal, GoalStage } from './learningGoals';
+
+export type PlanItem = { id: string; type: 'learn' | 'review' | 'practice' | 'flashcards' | 'code'; topic: IndexedTopicMetadata; reason: string };
+export const parseDurationMinutes = (duration: string, fallback = 20) => { const match = duration?.match(/(\d+(?:\.\d+)?)\s*(h|hour|hours|min|mins|minutes)?/i); if (!match) return fallback; const amount = Number(match[1]); if (!Number.isFinite(amount)) return fallback; return /h/i.test(match[2] ?? '') ? Math.round(amount * 60) : Math.max(1, Math.round(amount)); };
+const stageTopics = (_goal: LearningGoal, stage: GoalStage) => stage.topicRefs.flatMap((ref) => {
+  const topics = ref.topicIds ? ref.topicIds.map((id) => getTopicMetadata(ref.languageKey, id)).filter(Boolean) as IndexedTopicMetadata[] : getLanguageTopicsMetadata(ref.languageKey);
+  return ref.levels ? topics.filter((topic) => ref.levels?.includes(topic.level)) : topics;
+});
+export const getGoalTopics = (goal: LearningGoal) => goal.stages.flatMap((stage) => stageTopics(goal, stage));
+export const getGoalProgress = (goal: LearningGoal, completedIds: ReadonlySet<string>) => { const topics = getGoalTopics(goal); const completed = topics.filter((topic) => completedIds.has(topic.id)).length; return { completed, total: topics.length, percent: topics.length ? Math.round(completed / topics.length * 100) : 0 }; };
+export const getCurrentStage = (goal: LearningGoal, completedIds: ReadonlySet<string>) => { const index = goal.stages.findIndex((stage) => stageTopics(goal, stage).some((topic) => !completedIds.has(topic.id))); return { index: index < 0 ? goal.stages.length - 1 : index, stage: goal.stages[index < 0 ? goal.stages.length - 1 : index] }; };
+export const getRecommendedTopicForGoal = (goal: LearningGoal, completedIds: ReadonlySet<string>, experience: ExperienceLevel = 'beginner') => { const topics = getGoalTopics(goal); const preferred = experience === 'beginner' ? ['Beginner', 'Intermediate', 'Advanced'] : experience === 'some-basics' ? ['Beginner', 'Intermediate', 'Advanced'] : experience === 'intermediate' ? ['Intermediate', 'Beginner', 'Advanced'] : ['Advanced', 'Intermediate', 'Beginner']; return preferred.flatMap((level) => topics.filter((topic) => topic.level === level && !completedIds.has(topic.id)))[0]; };
+export const getSkillGaps = (topic: IndexedTopicMetadata | undefined, completedIds: ReadonlySet<string>, goal?: LearningGoal) => {
+  if (!topic || !goal) return [];
+  const topics = getGoalTopics(goal);
+  const position = topics.findIndex((item) => item.id === topic.id);
+  return position < 0 ? [] : topics.slice(0, position).filter((item) => item.languageKey === topic.languageKey && !completedIds.has(item.id)).slice(-3);
+};
+export const generateTodayPlan = (goal: LearningGoal | undefined, completedIds: ReadonlySet<string>, reviewIds: ReadonlySet<string>, weakIds: ReadonlySet<string>, dailyMinutes = 30): PlanItem[] => { if (!goal) return []; const topics = getGoalTopics(goal); const result: PlanItem[] = []; const add = (topic: IndexedTopicMetadata | undefined, type: PlanItem['type'], reason: string) => { if (topic && !result.some((item) => item.topic.id === topic.id && item.type === type)) result.push({ id: `${type}-${topic.id}`, type, topic, reason }); }; topics.filter((topic) => reviewIds.has(topic.id)).slice(0, 1).forEach((topic) => add(topic, 'review', 'Due review')); topics.filter((topic) => weakIds.has(topic.id) && !completedIds.has(topic.id)).slice(0, 1).forEach((topic) => add(topic, 'practice', 'Weak topic')); const next = getRecommendedTopicForGoal(goal, completedIds); if (next?.hasCodeExercise) add(next, 'code', 'Code practice available'); add(next, 'learn', 'Next in your path'); topics.filter((topic) => !completedIds.has(topic.id)).slice(1, 5).forEach((topic) => { if (result.reduce((sum, item) => sum + parseDurationMinutes(item.topic.duration), 0) < dailyMinutes) add(topic, 'learn', 'Upcoming path topic'); }); return result.slice(0, dailyMinutes <= 10 ? 1 : dailyMinutes <= 20 ? 2 : dailyMinutes <= 30 ? 3 : 5); };
