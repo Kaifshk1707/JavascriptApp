@@ -73,7 +73,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   const totalStartedScore = Math.round(
     featuredTracks.reduce((sum, item) => sum + item.stats.startedScore, 0) /
-      featuredTracks.length,
+    featuredTracks.length,
   );
   const totalCompletedTopics = featuredTracks.reduce(
     (sum, item) => sum + item.stats.completedTopics,
